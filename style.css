@@ -1,0 +1,287 @@
+/* ===== RESET & ROOT ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b27;
+  --surface2: #1c2235;
+  --surface3: #222840;
+  --border: #2c3352;
+  --border-light: #3a4266;
+  --accent: #e8a045;
+  --accent-dark: #b87030;
+  --accent2: #5b8dee;
+  --accent2-dark: #3a6bc8;
+  --accent3: #e85d75;
+  --green: #3ec878;
+  --text: #e8eaf2;
+  --text-dim: #8892b0;
+  --text-muted: #4a5278;
+  --hanzi: #f5e6c4;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Outfit", "Noto Sans SC", sans-serif;
+  min-height: 100vh;
+  line-height: 1.65;
+  font-size: 15px;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(135deg, var(--bg) 0%, #121828 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  backdrop-filter: blur(12px);
+}
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.logo { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-badge {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #160a00;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 30px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.logo-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: .5px; }
+
+/* ===== LANDING LAYOUT ===== */
+.landing-wrap {
+  min-height: calc(100vh - 65px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 48px;
+}
+
+/* ===== HERO ===== */
+.landing-hero {
+  text-align: center;
+  max-width: 520px;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #160a00;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 5px 16px;
+  border-radius: 30px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+
+.hero-title span {
+  font-family: "Noto Serif SC", serif;
+  color: var(--hanzi);
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ===== LEVEL CARDS ===== */
+.level-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 720px;
+}
+
+.level-card {
+  flex: 1;
+  min-width: 260px;
+  max-width: 340px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+
+.level-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.level-card.hsk4::before {
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+}
+
+.level-card.hsk5::before {
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+}
+
+.level-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+
+.level-card.hsk4:hover { border-color: rgba(91,141,238,.4); }
+.level-card.hsk5:hover { border-color: rgba(232,160,69,.4); }
+.level-card:hover::before { opacity: 1; }
+
+/* ===== CARD INTERNALS ===== */
+.card-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 13px;
+  border-radius: 20px;
+  align-self: flex-start;
+}
+
+.level-card.hsk4 .card-level-badge {
+  background: rgba(91,141,238,.12);
+  border: 1px solid rgba(91,141,238,.22);
+  color: var(--accent2);
+}
+
+.level-card.hsk5 .card-level-badge {
+  background: rgba(232,160,69,.12);
+  border: 1px solid rgba(232,160,69,.22);
+  color: var(--accent);
+}
+
+.card-hanzi-preview {
+  font-family: "Noto Serif SC", serif;
+  font-size: 44px;
+  color: var(--hanzi);
+  line-height: 1;
+  letter-spacing: 4px;
+  opacity: .7;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.card-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.card-stats-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.card-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  flex: 1;
+}
+
+.card-stat-num {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.level-card.hsk4 .card-stat-num { color: var(--accent2); }
+.level-card.hsk5 .card-stat-num { color: var(--accent); }
+
+.card-stat-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card-arrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 4px;
+  transition: gap .2s;
+}
+
+.level-card.hsk4 .card-arrow { color: var(--accent2); }
+.level-card.hsk5 .card-arrow { color: var(--accent); }
+.level-card:hover .card-arrow { gap: 10px; }
+
+/* ===== FOOTER NOTE ===== */
+.landing-footer {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.8;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .hero-title { font-size: 30px; }
+  .level-card { min-width: 100%; max-width: 100%; }
+  .landing-wrap { padding: 32px 16px; gap: 36px; }
+  .card-hanzi-preview { font-size: 36px; }
+}
