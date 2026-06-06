@@ -1,16 +1,96 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>HSK Vocabulary Learning</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSK Vocabulary Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+SC&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<h1>📘 Learn Chinese Vocabulary</h1>
-<p>Pilih level HSK:</p>
-
-<button onclick="location.href='hsk4.html'">HSK 4</button>
-<button onclick="location.href='hsk5.html'">HSK 5</button>
-
+ 
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-badge">汉语</div>
+      <div>
+        <div class="logo-title">HSK Vocabulary</div>
+        <div class="logo-sub">Chinese Learning Platform</div>
+      </div>
+    </div>
+  </div>
+</header>
+ 
+<!-- LANDING -->
+<div class="landing-wrap">
+ 
+  <!-- HERO -->
+  <div class="landing-hero">
+    <div class="hero-badge">📘 Pilih Level</div>
+    <h1 class="hero-title">Belajar<br><span>汉语词汇</span></h1>
+    <p class="hero-sub">Pilih level HSK yang ingin kamu pelajari.<br>Tersedia kosakata, flashcard, dan latihan soal.</p>
+  </div>
+ 
+  <!-- CARDS -->
+  <div class="level-cards">
+ 
+    <!-- HSK 4 -->
+    <a class="level-card hsk4" href="hsk4.html">
+      <div class="card-level-badge">
+        <span>◈</span> HSK 4
+      </div>
+      <div class="card-hanzi-preview">学习</div>
+      <div>
+        <div class="card-title">HSK Level 4</div>
+        <div class="card-desc">Tingkat menengah. Mampu membahas berbagai topik dan menyampaikan pendapat dalam Bahasa Mandarin.</div>
+      </div>
+      <div class="card-stats-row">
+        <div class="card-stat">
+          <div class="card-stat-num">600</div>
+          <div class="card-stat-label">Kosakata</div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-num">4</div>
+          <div class="card-stat-label">Mode Latihan</div>
+        </div>
+      </div>
+      <div class="card-arrow">Mulai Belajar <span>→</span></div>
+    </a>
+ 
+    <!-- HSK 5 -->
+    <a class="level-card hsk5" href="hsk5.html">
+      <div class="card-level-badge">
+        <span>◈</span> HSK 5
+      </div>
+      <div class="card-hanzi-preview">进步</div>
+      <div>
+        <div class="card-title">HSK Level 5</div>
+        <div class="card-desc">Tingkat lanjutan. Mampu membaca koran, menonton film, dan berpidato dalam Bahasa Mandarin.</div>
+      </div>
+      <div class="card-stats-row">
+        <div class="card-stat">
+          <div class="card-stat-num">1300</div>
+          <div class="card-stat-label">Kosakata</div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-num">4</div>
+          <div class="card-stat-label">Mode Latihan</div>
+        </div>
+      </div>
+      <div class="card-arrow">Mulai Belajar <span>→</span></div>
+    </a>
+ 
+  </div>
+ 
+  <!-- FOOTER NOTE -->
+  <div class="landing-footer">
+    Kosakata berdasarkan standar HSK resmi · Terjemahan EN & ID tersedia<br>
+    Flashcard · Vocabulary Browser · Writing Practice
+  </div>
+ 
+</div>
+ 
 </body>
 </html>
