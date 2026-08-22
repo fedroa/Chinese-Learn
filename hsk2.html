@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSK 2 — Learn Chinese Vocabulary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hsk4.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-badge">HSK 2</span>
+      <div>
+        <div class="logo-title">学习词汇 · Learn Vocabulary</div>
+        <div class="logo-sub">Chinese · Indonesia · English</div>
+      </div>
+    </div>
+    <div class="header-toggles">
+      <button class="btn header-toggle-btn pinyin-toggle-btn active" id="togglePinyinBtn" onclick="togglePinyin()">拼 Pinyin</button>
+      <button class="btn header-toggle-btn lang-btn active-en" id="toggleEnBtn" onclick="toggleLang('en')">🇬🇧 EN</button>
+      <button class="btn header-toggle-btn lang-btn active-id" id="toggleIdBtn" onclick="toggleLang('id')">🇮🇩 ID</button>
+    </div>
+    <div class="header-stats">
+      <div class="stat-chip"><span class="stat-num" id="totalCount">198</span><span class="stat-label">Total</span></div>
+      <div class="stat-chip"><span class="stat-num" id="bmCount">0</span><span class="stat-label">Marked</span></div>
+      <div class="stat-chip"><span class="stat-num" id="learnedCount">0</span><span class="stat-label">Be learn</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <button class="nav-tab active" data-tab="browse" onclick="showTab('browse',this)">📚 Vocabulary</button>
+  <button class="nav-tab" data-tab="flash" onclick="showTab('flash',this)">🃏 Flashcard</button>
+  <button class="nav-tab" data-tab="ordering" onclick="showTab('ordering',this)">✏️ Writing</button>
+</div>
+
+<!-- ===== BROWSE ===== -->
+<div class="section active" id="tab-browse">
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search for Hanzi, Pinyin, or translation...">
+    </div>
+    <select id="typeFilter">
+      <option value="">All Types of Words</option>
+      <option value="名">名 — Kata Benda (Noun)</option>
+      <option value="动">动 — Kata Kerja (Verb)</option>
+      <option value="形">形 — Kata Sifat (Adjective)</option>
+      <option value="副">副 — Kata Keterangan (Adverb)</option>
+      <option value="连">连 — Kata Hubung (Conjunction)</option>
+      <option value="介">介 — Kata Depan (Preposition)</option>
+      <option value="代">代 — Kata Ganti (Pronoun)</option>
+      <option value="叹">叹 — Kata Seru (Interjection)</option>
+      <option value="助">助 — Partikel (Particle)</option>
+      <option value="量">量 — Kata Satuan (Classifier)</option>
+      <option value="数">数 — Kata Bilangan (Number)</option>
+    </select>
+    <select id="pageSizeSelect" onchange="setPageSize(+this.value)">
+      <option value="10">Show 10</option>
+      <option value="20">Show 20</option>
+      <option value="50" selected>Show 50</option>
+      <option value="100">Show 100</option>
+      <option value="200">Show 200</option>
+      <option value="500">Show 500</option>
+      <option value="1000">Show 1000</option>
+      <option value="1300">Show all</option>
+    </select>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeGrid" onclick="setDisplayMode('grid')">⊞ Grid</button>
+      <button class="mode-btn" id="modeList" onclick="setDisplayMode('list')">≡ List</button>
+    </div>
+    <button class="btn" id="bmOnlyBtn" onclick="toggleBmOnly()">🔖 Just mark it</button>
+    <button class="btn" onclick="shuffleVocab()">🔀 Random</button>
+    <button class="btn" id="sortAzBtn" onclick="sortAZ()">🔤 A–Z</button>
+  </div>
+  <div class="alpha-bar" id="alphaBar"></div>
+  <div class="info-bar" id="resultCount"></div>
+  <div id="listHeader" class="list-header" style="display:none;">
+    <span>Hanzi</span><span>Pinyin</span><span>Indonesia</span><span>English</span><span>Type</span><span></span>
+  </div>
+  <div id="vocabContainer"></div>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- ===== FLASHCARD ===== -->
+<div class="section" id="tab-flash">
+  <div class="fc-wrap">
+    <div class="fc-progress">
+      <div class="prog-bar"><div class="prog-fill" id="fcFill" style="width:0%"></div></div>
+      <span class="prog-text" id="fcProgText">0 / 0</span>
+    </div>
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="fc-inner">
+        <div class="fc-face">
+          <div class="fc-big-hanzi" id="fcHanzi">—</div>
+          <div class="fc-big-pinyin" id="fcPinyin">—</div>
+          <div class="fc-sub">Click to see the meaning</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-type" id="fcType">—</div>
+          <div class="fc-en" id="fcEn">—</div>
+          <div class="fc-id" id="fcId">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="kbd-hint">Space=back · ←→=navigation · Enter=know · X=don't know yet</div>
+    <div class="fc-controls">
+      <button class="fc-btn" onclick="fcPrev()">← Back</button>
+      <button class="fc-btn skip" onclick="fcSkipFn()">✗ Don't know yet</button>
+      <button class="fc-btn know" onclick="fcKnowFn()">✓ Already know</button>
+      <button class="fc-btn" onclick="fcNext()">Skip →</button>
+    </div>
+    <div class="fc-meta" id="fcStats">✓ 0 sudah tahu &nbsp;·&nbsp; ✗ 0 don't know yet</div>
+    <div class="fc-tool-row">
+      <button class="btn" onclick="initFlashcards()">🔄 Restart</button>
+      <button class="btn" id="fcBmOnlyBtn" onclick="toggleFcBmOnly()">🔖 Only those marked</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ORDERING ===== -->
+<div class="section" id="tab-ordering">
+  <div class="wr-header">
+    <h2>✏️ Word Ordering Exercise</h2>
+    <p>Arrange the words into correct sentences. Each set of questions is randomly shuffled.</p>
+  </div>
+
+  <div class="wr-toolbar">
+    <div class="wr-count-select">
+      <span>Number of questions:</span>
+      <select id="wrCountSelect">
+        <option value="5">5 question</option>
+        <option value="10" selected>10 question</option>
+        <option value="15">15 question</option>
+        <option value="20">20 question</option>
+        <option value="50">All (50)</option>
+      </select>
+    </div>
+    <button class="btn" onclick="restartOrdering()">🔄 New Session (Random)</button>
+  </div>
+
+  <div class="wr-progress">
+    <div class="prog-bar"><div class="prog-fill" id="wrFill" style="width:0%"></div></div>
+    <span class="prog-text" id="wrProgText">1 / 10</span>
+    <div class="wr-score-chip">Skor: <span id="wrScore">0</span>/<span id="wrTotal">10</span></div>
+  </div>
+
+  <div id="wrGame">
+    <div class="wr-card">
+      <div class="wr-qnum" id="wrQnum">Question 1</div>
+      <div class="wr-grammar-tag" id="wrGrammarTag"></div>
+      <div class="wr-instruction">Arrange the following words into a correct sentence:</div>
+
+      <div class="wr-label">📦 Arrange the following words from the Word Bank — click to add them to your answer — into a correct sentence:</div>
+      <div class="wr-bank" id="wrBank"></div>
+
+      <div class="wr-label">📝 Answer — click the word to return to the bank:</div>
+      <div class="wr-answer-wrap" id="wrAnswer">
+        <span class="wr-empty-hint">No word has been chosen yet…</span>
+      </div>
+
+      <div class="wr-btn-row">
+        <button class="wr-btn primary" id="wrCheckBtn" onclick="checkOrdering()">✓ Check</button>
+        <button class="wr-btn danger" id="wrClearBtn" onclick="clearOrdering()">↺ Delete All</button>
+        <button class="wr-btn" id="wrNextBtn" onclick="nextOrdering()" style="display:none">→ Next Question</button>
+      </div>
+      <div class="wr-feedback" id="wrFeedback"></div>
+    </div>
+  </div>
+
+  <div class="wr-result" id="wrResult">
+    <div class="wr-result-stars" id="wrStars">🌟🌟🌟</div>
+    <div class="wr-big-score" id="wrFinalScore">0/10</div>
+    <div class="wr-result-msg" id="wrResultMsg">Completed!</div>
+    <div class="wr-result-detail" id="wrResultDetail"></div>
+    <button class="wr-btn primary" onclick="restartOrdering()" style="margin:0 auto;display:flex;">🔄 New Session (Random)</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalBg(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="m-hanzi" id="mHanzi">—</div>
+    <div class="m-pinyin" id="mPinyin">—</div>
+    <div class="m-type" id="mType"></div>
+    <div class="m-trans">
+      <div class="m-row"><span class="m-lang en">EN</span><span class="m-text" id="mEn">—</span></div>
+      <div class="m-row"><span class="m-lang id">ID</span><span class="m-text id" id="mId">—</span></div>
+    </div>
+    <div class="m-level" id="mLevel"></div>
+      <div class="m-example" id="mExample" style="display:none;">
+      <div class="m-ex-label">💬 Example sentence</div>
+      <div class="m-ex-zh" id="mExZh"></div>
+      <div class="m-ex-py" id="mExPy"></div>
+      <div class="m-ex-row">
+        <span class="m-lang id">ID</span>
+        <span class="m-ex-trans" id="mExId"></span>
+      </div>
+      <div class="m-ex-row">
+        <span class="m-lang en">EN</span>
+        <span class="m-ex-trans" id="mExEn"></span>
+      </div>
+    </div>
+    <div class="m-actions">
+      <button class="m-btn" id="mBmBtn" onclick="toggleBmModal()">🔖 Mark</button>
+      <button class="m-btn" onclick="speakModal()">🔊 Sound</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+const VOCAB = [{"hanzi":"啊","pinyin":"a","english":"ah, oh","type":"助","level":"New HSK2","indonesian":"ah; oh"},{"hanzi":"爱好","pinyin":"àihào","english":"to like; hobby","type":"动/名","level":"New HSK2","indonesian":"menyukai; hobi"},{"hanzi":"白色","pinyin":"báisè","english":"white","type":"名","level":"New HSK2","indonesian":"putih"},{"hanzi":"班","pinyin":"bān","english":"class, team; (measure word for groups)","type":"名/量","level":"New HSK2","indonesian":"kelas; regu"},{"hanzi":"帮","pinyin":"bāng","english":"to help","type":"动","level":"New HSK2","indonesian":"membantu"},{"hanzi":"帮忙","pinyin":"bāngmáng","english":"to help","type":"动","level":"New HSK2","indonesian":"membantu"},{"hanzi":"包","pinyin":"bāo","english":"to wrap, to pack; bag; measure word for bundles","type":"动/名/量","level":"New HSK2","indonesian":"membungkus, mengemas; tas; [kata satuan untuk bungkusan]"},{"hanzi":"本子","pinyin":"běnzi","english":"notebook","type":"名","level":"New HSK2","indonesian":"buku catatan"},{"hanzi":"比","pinyin":"bǐ","english":"to compare; than","type":"动/介","level":"YCT2,YCT4,HSK2,New HSK2","indonesian":"untuk membandingkan"},{"hanzi":"笔","pinyin":"bǐ","english":"pen; (measure word for writing tools)","type":"名/量","level":"New HSK2","indonesian":"pena; [kata satuan untuk alat tulis]"},{"hanzi":"别","pinyin":"bié","english":"don't, not bad","type":"副","level":"YCT3,YCT4,HSK2,New HSK2,New HSK5","indonesian":"memisahkan"},{"hanzi":"不错","pinyin":"búcuò","english":"not bad, pretty good","type":"形","level":"New HSK2","indonesian":"tidak buruk, cukup bagus"},{"hanzi":"不好意思","pinyin":"bù hǎoyìsi","english":"sorry, embarrassed","type":"","level":"New HSK2","indonesian":"maaf, malu"},{"hanzi":"长","pinyin":"cháng","english":"long","type":"形","level":"YCT1,HSK2,HSK3,New HSK2,New HSK3","indonesian":"panjang"},{"hanzi":"车站","pinyin":"chēzhàn","english":"station","type":"名","level":"New HSK2","indonesian":"halte; stasiun"},{"hanzi":"出","pinyin":"chū","english":"to go out, to leave","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"untuk keluar"},{"hanzi":"出国","pinyin":"chūguó","english":"to go abroad","type":"动","level":"New HSK2","indonesian":"pergi ke luar negeri"},{"hanzi":"出来","pinyin":"chūlái","english":"to come out","type":"动","level":"New HSK2","indonesian":"keluar"},{"hanzi":"出门","pinyin":"chūmén","english":"to go out","type":"动","level":"New HSK2","indonesian":"keluar rumah"},{"hanzi":"出去","pinyin":"chūqù","english":"to go out","type":"动","level":"New HSK2","indonesian":"keluar"},{"hanzi":"床","pinyin":"chuáng","english":"bed","type":"名","level":"New HSK2","indonesian":"tempat tidur"},{"hanzi":"词","pinyin":"cí","english":"word, term","type":"名","level":"New HSK2","indonesian":"kata, istilah"},{"hanzi":"次","pinyin":"cì","english":"measure word of time or occasion; (next in order)","type":"量/形","level":"YCT3,HSK2,New HSK2","indonesian":"waktu"},{"hanzi":"从","pinyin":"cóng","english":"from; (ever)","type":"介/副","level":"YCT4,HSK2,New HSK2","indonesian":"dari; mengikuti; mematuhi"},{"hanzi":"从小","pinyin":"cóngxiǎo","english":"from childhood","type":"副","level":"New HSK2","indonesian":"sejak kecil"},{"hanzi":"错","pinyin":"cuò","english":"wrong, mistaken","type":"形","level":"YCT4,HSK2,New HSK2","indonesian":"salah"},{"hanzi":"打","pinyin":"dǎ","english":"to hit, to play, to make","type":"动","level":"New HSK2","indonesian":"memukul, bermain, membuat"},{"hanzi":"打车","pinyin":"dǎchē","english":"to take a taxi","type":"动","level":"New HSK2","indonesian":"naik taksi"},{"hanzi":"打开","pinyin":"dǎkāi","english":"to open","type":"动","level":"New HSK2","indonesian":"membuka"},{"hanzi":"但","pinyin":"dàn","english":"but, however; (only, merely)","type":"连/副","level":"New HSK2","indonesian":"tetapi; (hanya)"},{"hanzi":"但是","pinyin":"dànshì","english":"but, however","type":"连","level":"New HSK2","indonesian":"tetapi, namun"},{"hanzi":"得","pinyin":"de","english":"particle indicating degree or manner","type":"助","level":"YCT3,HSK2,HSK4,New HSK2,New HSK3","indonesian":"[partikel untuk menghubungkan kata kerja dengan kata keterangan]"},{"hanzi":"地","pinyin":"de","english":"particle modifying an adjective into an adverb","type":"助","level":"New HSK2","indonesian":"partikel yang mengubah kata sifat menjadi kata keterangan"},{"hanzi":"等","pinyin":"děng","english":"to wait; (and so on, until)","type":"动/介","level":"YCT4,HSK2,HSK4,New HSK2,New HSK4","indonesian":"Tunggu"},{"hanzi":"地铁","pinyin":"dìtiě","english":"subway, metro","type":"名","level":"New HSK2","indonesian":"kereta bawah tanah, MRT"},{"hanzi":"点","pinyin":"diǎn","english":"to light, to ignite; (point, dot; to order)","type":"动/名/量","level":"YCT1,HSK1,New HSK1,New HSK2","indonesian":"titik"},{"hanzi":"懂","pinyin":"dǒng","english":"to understand","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"untuk memahami"},{"hanzi":"动","pinyin":"dòng","english":"to move, to act","type":"动","level":"New HSK2","indonesian":"bergerak, bertindak"},{"hanzi":"饭馆","pinyin":"fànguǎn","english":"restaurant","type":"名","level":"New HSK2","indonesian":"restoran"},{"hanzi":"飞","pinyin":"fēi","english":"to fly","type":"动","level":"New HSK2","indonesian":"terbang"},{"hanzi":"高","pinyin":"gāo","english":"tall, high; height","type":"形/名","level":"YCT1,HSK2,New HSK2","indonesian":"tinggi; jangkung"},{"hanzi":"高中","pinyin":"gāozhōng","english":"high school","type":"名","level":"New HSK2","indonesian":"sekolah menengah atas"},{"hanzi":"告诉","pinyin":"gàosu","english":"to tell","type":"动","level":"YCT4,HSK2,New HSK2","indonesian":"untuk memberi tahu"},{"hanzi":"个子","pinyin":"gèzi","english":"height, stature","type":"名","level":"New HSK2","indonesian":"tinggi badan, postur"},{"hanzi":"跟","pinyin":"gēn","english":"with; and; (heel; to follow, to accompany)","type":"介/连/名/动","level":"New HSK2","indonesian":"dengan; dan; (tumit; mengikuti, menemani)"},{"hanzi":"公交车","pinyin":"gōngjiāochē","english":"bus","type":"名","level":"New HSK2","indonesian":"bus"},{"hanzi":"过","pinyin":"guò / guo","english":"to pass, to cross; excessive; particle indicating past experience","type":"动/助","level":"YCT3,HSK2,HSK3,New HSK2","indonesian":"melewati, melintasi; berlebihan; [penanda setelah kata kerja untuk menunjukkan pengalaman]"},{"hanzi":"过来","pinyin":"guòlái","english":"to come over","type":"动","level":"New HSK2","indonesian":"datang ke sini"},{"hanzi":"过年","pinyin":"guònián","english":"to celebrate the New Year","type":"动","level":"New HSK2","indonesian":"merayakan tahun baru"},{"hanzi":"过去","pinyin":"guòqù","english":"to go over","type":"动","level":"New HSK2","indonesian":"pergi ke sana"},{"hanzi":"还是","pinyin":"háishi","english":"still; or","type":"副/连","level":"New HSK2","indonesian":"masih; atau"},{"hanzi":"黑色","pinyin":"hēisè","english":"black","type":"名","level":"New HSK2","indonesian":"hitam"},{"hanzi":"红茶","pinyin":"hóngchá","english":"black tea","type":"名","level":"New HSK2","indonesian":"teh hitam"},{"hanzi":"红色","pinyin":"hóngsè","english":"red","type":"名","level":"New HSK2","indonesian":"merah"},{"hanzi":"后面","pinyin":"hòumiàn","english":"behind, back","type":"名","level":"New HSK2","indonesian":"di belakang"},{"hanzi":"花","pinyin":"huā","english":"to spend (money or time); flower; (colorful)","type":"动/名/形","level":"New HSK2","indonesian":"menghabiskan (uang atau waktu); bunga; (berwarna-warni)"},{"hanzi":"画","pinyin":"huà","english":"to draw, to paint; painting, picture","type":"动/名","level":"New HSK2","indonesian":"menggambar, melukis; lukisan, gambar"},{"hanzi":"坏","pinyin":"huài","english":"bad, broken","type":"形","level":"New HSK2","indonesian":"buruk, rusak"},{"hanzi":"回来","pinyin":"huílái","english":"to come back","type":"动","level":"New HSK2","indonesian":"kembali ke sini"},{"hanzi":"回去","pinyin":"huíqù","english":"to go back","type":"动","level":"New HSK2","indonesian":"kembali ke sana"},{"hanzi":"机场","pinyin":"jīchǎng","english":"airport","type":"名","level":"HSK2,New HSK2","indonesian":"bandara"},{"hanzi":"机票","pinyin":"jīpiào","english":"airplane ticket","type":"名","level":"New HSK2","indonesian":"tiket pesawat"},{"hanzi":"记得","pinyin":"jìde","english":"to remember","type":"动","level":"New HSK2","indonesian":"ingat"},{"hanzi":"间","pinyin":"jiān","english":"measure word for rooms; between","type":"量/名","level":"New HSK2","indonesian":"[kata satuan untuk ruangan]; di antara"},{"hanzi":"教","pinyin":"jiāo","english":"to teach","type":"动","level":"New HSK2","indonesian":"mengajar"},{"hanzi":"教室","pinyin":"jiàoshì","english":"classroom","type":"名","level":"YCT3,HSK2,New HSK2","indonesian":"kelas"},{"hanzi":"介绍","pinyin":"jièshào","english":"to introduce","type":"动","level":"YCT4,HSK2,New HSK2","indonesian":"memperkenalkan"},{"hanzi":"进","pinyin":"jìn","english":"to enter","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"untuk masuk"},{"hanzi":"近","pinyin":"jìn","english":"near, close","type":"形","level":"YCT3,HSK2,New HSK2","indonesian":"dekat; di dekatnya"},{"hanzi":"进来","pinyin":"jìnlái","english":"to come in","type":"动","level":"New HSK2","indonesian":"masuk ke sini"},{"hanzi":"进去","pinyin":"jìnqù","english":"to go in","type":"动","level":"New HSK2","indonesian":"masuk ke sana"},{"hanzi":"经常","pinyin":"jīngcháng","english":"often","type":"副","level":"New HSK2","indonesian":"sering"},{"hanzi":"酒店","pinyin":"jiǔdiàn","english":"hotel","type":"名","level":"New HSK2","indonesian":"hotel"},{"hanzi":"就","pinyin":"jiù","english":"just, then; (as early as, only, as soon as)","type":"副/介","level":"YCT3,HSK2,New HSK2","indonesian":"hanya"},{"hanzi":"咖啡","pinyin":"kāfēi","english":"coffee","type":"名","level":"HSK2,New HSK2","indonesian":"kopi"},{"hanzi":"开始","pinyin":"kāishǐ","english":"to start; beginning","type":"动/名","level":"YCT4,HSK2,New HSK2","indonesian":"untuk memulai"},{"hanzi":"开学","pinyin":"kāixué","english":"school starts","type":"动","level":"New HSK2","indonesian":"sekolah dimulai"},{"hanzi":"考","pinyin":"kǎo","english":"to test, to take an exam","type":"动","level":"New HSK2","indonesian":"menguji, mengikuti ujian"},{"hanzi":"考试","pinyin":"kǎoshì","english":"to take an exam; exam","type":"动/名","level":"YCT4,HSK2,New HSK2","indonesian":"penyelidikan"},{"hanzi":"可能","pinyin":"kěnéng","english":"possible; possibility; may","type":"形/名/动","level":"YCT4,HSK2,New HSK2","indonesian":"mungkin; bisa jadi"},{"hanzi":"裤子","pinyin":"kùzi","english":"pants","type":"名","level":"New HSK2","indonesian":"celana"},{"hanzi":"快","pinyin":"kuài","english":"fast; soon, quickly","type":"形/副","level":"YCT3,HSK2,New HSK2","indonesian":"cepat; kilat"},{"hanzi":"快乐","pinyin":"kuàilè","english":"happy, joyful","type":"形","level":"YCT3,HSK2,New HSK2","indonesian":"senang"},{"hanzi":"快要","pinyin":"kuàiyào","english":"soon, almost","type":"副","level":"New HSK2","indonesian":"segera, hampir"},{"hanzi":"篮球","pinyin":"lánqiú","english":"basketball","type":"名","level":"New HSK2","indonesian":"bola basket"},{"hanzi":"累","pinyin":"lèi","english":"tired; to tire","type":"形/动","level":"YCT3,HSK2,New HSK2","indonesian":"lelah"},{"hanzi":"离","pinyin":"lí","english":"to leave, to be away from","type":"动","level":"YCT4,HSK2,New HSK2","indonesian":"menjauh; meninggalkan"},{"hanzi":"里面","pinyin":"lǐmiàn","english":"inside","type":"名","level":"New HSK2","indonesian":"di dalam"},{"hanzi":"楼","pinyin":"lóu","english":"building, floor","type":"名","level":"New HSK2","indonesian":"gedung, lantai"},{"hanzi":"路","pinyin":"lù","english":"road, path","type":"名","level":"HSK2,New HSK2","indonesian":"jalan; rute; nomor bus"},{"hanzi":"路上","pinyin":"lùshang","english":"on the road","type":"名","level":"New HSK2","indonesian":"di jalan"},{"hanzi":"旅游","pinyin":"lǚyóu","english":"to travel","type":"动","level":"YCT4,HSK2,New HSK2","indonesian":"pariwisata"},{"hanzi":"绿茶","pinyin":"lǜchá","english":"green tea","type":"名","level":"New HSK2","indonesian":"teh hijau"},{"hanzi":"绿色","pinyin":"lǜsè","english":"green color; (green)","type":"名/形","level":"New HSK2","indonesian":"warna hijau; (hijau)"},{"hanzi":"慢","pinyin":"màn","english":"slow","type":"形","level":"YCT3,HSK2,New HSK2","indonesian":"lambat"},{"hanzi":"没意思","pinyin":"méi yìsi","english":"boring, uninteresting","type":"","level":"New HSK2","indonesian":"membosankan, tidak menarik"},{"hanzi":"每","pinyin":"měi","english":"every, each; (per)","type":"代/副","level":"YCT3,HSK2,New HSK2","indonesian":"setiap; masing-masing"},{"hanzi":"门","pinyin":"mén","english":"door, gate","type":"名","level":"HSK2,New HSK2","indonesian":"pintu"},{"hanzi":"门口","pinyin":"ménkǒu","english":"doorway, entrance","type":"名","level":"New HSK2","indonesian":"pintu masuk"},{"hanzi":"门票","pinyin":"ménpiào","english":"ticket","type":"名","level":"New HSK2","indonesian":"tiket masuk"},{"hanzi":"面","pinyin":"miàn","english":"indicating a person with a certain characteristic; (to face; side, aspect; measure word for flat objects)","type":"后缀/动/名/classifier suffix","level":"New HSK2","indonesian":"akhiran penanda ciri seseorang; (menghadap; sisi, aspek; [kata satuan untuk benda datar])"},{"hanzi":"名","pinyin":"míng","english":"name, reputation; measure word for people","type":"名/量","level":"New HSK2","indonesian":"nama, reputasi; [kata satuan untuk orang]"},{"hanzi":"拿","pinyin":"ná","english":"to take, to hold","type":"动","level":"New HSK2","indonesian":"mengambil, memegang"},{"hanzi":"那么","pinyin":"nàme","english":"so, like that; then","type":"代/连","level":"New HSK2","indonesian":"begitu, seperti itu; kalau begitu"},{"hanzi":"那样","pinyin":"nàyàng","english":"like that","type":"代","level":"New HSK2","indonesian":"seperti itu"},{"hanzi":"奶茶","pinyin":"nǎichá","english":"milk tea","type":"名","level":"New HSK2","indonesian":"teh susu"},{"hanzi":"奶奶","pinyin":"nǎinai","english":"grandmother","type":"名","level":"New HSK2","indonesian":"nenek"},{"hanzi":"男孩儿","pinyin":"nánháir","english":"boy","type":"名","level":"New HSK2","indonesian":"anak laki-laki"},{"hanzi":"鸟","pinyin":"niǎo","english":"bird","type":"名","level":"New HSK2","indonesian":"burung"},{"hanzi":"女孩儿","pinyin":"nǚháir","english":"girl","type":"名","level":"New HSK2","indonesian":"anak perempuan"},{"hanzi":"旁边","pinyin":"pángbiān","english":"side","type":"名","level":"YCT3,HSK2,New HSK2","indonesian":"di sebelah"},{"hanzi":"跑","pinyin":"pǎo","english":"to run","type":"动","level":"New HSK2","indonesian":"berlari"},{"hanzi":"跑步","pinyin":"pǎobù","english":"to run, jogging","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"berlari; jogging"},{"hanzi":"票","pinyin":"piào","english":"ticket","type":"名","level":"HSK2,New HSK2","indonesian":"tiket"},{"hanzi":"妻子","pinyin":"qīzi","english":"wife","type":"名","level":"HSK2,New HSK2","indonesian":"istri"},{"hanzi":"起来","pinyin":"qǐlái","english":"to get up, to stand up; used after verbs to indicate upward movement or beginning","type":"动","level":"New HSK2","indonesian":"bangun, berdiri; [dipakai setelah kata kerja untuk menunjukkan gerakan ke atas atau permulaan]"},{"hanzi":"前面","pinyin":"qiánmiàn","english":"front","type":"名","level":"New HSK2","indonesian":"di depan"},{"hanzi":"晴","pinyin":"qíng","english":"sunny, clear","type":"形","level":"YCT4,HSK2,New HSK2","indonesian":"bagus; cerah"},{"hanzi":"球","pinyin":"qiú","english":"ball, sphere","type":"名","level":"New HSK2","indonesian":"bola"},{"hanzi":"让","pinyin":"ràng","english":"to let, to allow; (by)","type":"动/介","level":"YCT3,HSK2,New HSK2","indonesian":"mengizinkan; memperbolehkan"},{"hanzi":"肉","pinyin":"ròu","english":"meat","type":"名","level":"New HSK2","indonesian":"daging"},{"hanzi":"商场","pinyin":"shāngchǎng","english":"shopping mall","type":"名","level":"New HSK2","indonesian":"pusat perbelanjaan"},{"hanzi":"上来","pinyin":"shànglái","english":"to come up","type":"动","level":"New HSK2","indonesian":"naik ke sini"},{"hanzi":"上面","pinyin":"shàngmiàn","english":"above, top","type":"名","level":"New HSK2","indonesian":"di atas"},{"hanzi":"上去","pinyin":"shàngqù","english":"to go up","type":"动","level":"New HSK2","indonesian":"naik ke sana"},{"hanzi":"上网","pinyin":"shàngwǎng","english":"to go online, to surf the Internet","type":"动","level":"New HSK2","indonesian":"berselancar di internet"},{"hanzi":"身体","pinyin":"shēntǐ","english":"body","type":"名","level":"YCT3,HSK2,New HSK2","indonesian":"tubuh; kesehatan"},{"hanzi":"生日","pinyin":"shēngrì","english":"birthday","type":"名","level":"YCT3,HSK2,New HSK2","indonesian":"hari ulang tahun"},{"hanzi":"时","pinyin":"shí","english":"time, moment; (season, period)","type":"名/量","level":"New HSK2","indonesian":"waktu, saat; (musim, periode)"},{"hanzi":"事情","pinyin":"shìqing","english":"matter, affair","type":"名","level":"YCT3,HSK2,New HSK2","indonesian":"masalah; urusan; hal"},{"hanzi":"手","pinyin":"shǒu","english":"hand","type":"名","level":"New HSK2","indonesian":"tangan"},{"hanzi":"手表","pinyin":"shǒubiǎo","english":"watch, wristwatch","type":"名","level":"YCT4,HSK2,New HSK2","indonesian":"jam tangan"},{"hanzi":"书包","pinyin":"shūbāo","english":"backpack, schoolbag","type":"名","level":"New HSK2","indonesian":"tas sekolah"},{"hanzi":"舒服","pinyin":"shūfu","english":"comfortable","type":"形","level":"New HSK2","indonesian":"nyaman"},{"hanzi":"送","pinyin":"sòng","english":"to give, to send, to see off","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"memberi (hadiah); mengantarkan; mengantar seseorang"},{"hanzi":"虽然","pinyin":"suīrán","english":"although","type":"连","level":"New HSK2","indonesian":"meskipun"},{"hanzi":"所以","pinyin":"suǒyǐ","english":"so, therefore","type":"连","level":"New HSK2","indonesian":"jadi, oleh karena itu"},{"hanzi":"疼","pinyin":"téng","english":"painful, sore; (to hurt)","type":"形/动","level":"New HSK2","indonesian":"sakit, nyeri; (menyakiti)"},{"hanzi":"踢","pinyin":"tī","english":"to kick","type":"动","level":"New HSK2","indonesian":"menendang"},{"hanzi":"题","pinyin":"tí","english":"question, problem, topic","type":"名","level":"HSK2,New HSK2","indonesian":"pertanyaan"},{"hanzi":"条","pinyin":"tiáo","english":"measure word for long, thin, or strip-like objects; (clause, item)","type":"量/名","level":"New HSK2","indonesian":"[kata satuan untuk benda panjang dan tipis]; (klausa, butir)"},{"hanzi":"跳舞","pinyin":"tiàowǔ","english":"to dance","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"menari"},{"hanzi":"头","pinyin":"tóu","english":"head; (measure word for animals); (first)","type":"名/量/形","level":"New HSK2","indonesian":"kepala; [kata satuan untuk hewan]; (pertama)"},{"hanzi":"外国","pinyin":"wàiguó","english":"foreign country","type":"名","level":"New HSK2","indonesian":"negara asing"},{"hanzi":"外面","pinyin":"wàimiàn","english":"outside","type":"名","level":"New HSK2","indonesian":"di luar"},{"hanzi":"完","pinyin":"wán","english":"to finish","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"untuk menyelesaikan; [+ kata kerja menunjukkan penyelesaian]"},{"hanzi":"万","pinyin":"wàn","english":"ten thousand","type":"数","level":"New HSK2","indonesian":"sepuluh ribu"},{"hanzi":"往","pinyin":"wǎng","english":"to go; toward","type":"动/介","level":"HSK2,New HSK2","indonesian":"terhadap"},{"hanzi":"网上","pinyin":"wǎngshang","english":"online","type":"名","level":"New HSK2","indonesian":"daring, online"},{"hanzi":"忘","pinyin":"wàng","english":"to forget","type":"动","level":"New HSK2","indonesian":"lupa"},{"hanzi":"位","pinyin":"wèi","english":"measure word for people","type":"量","level":"New HSK2","indonesian":"[kata satuan untuk orang]"},{"hanzi":"为什么","pinyin":"wèi shénme","english":"why","type":"","level":"YCT3,YCT4,HSK2,New HSK2","indonesian":"Mengapa?"},{"hanzi":"希望","pinyin":"xīwàng","english":"to hope","type":"动","level":"YCT4,HSK2,New HSK2","indonesian":"harapan; keinginan"},{"hanzi":"洗","pinyin":"xǐ","english":"to wash","type":"动","level":"HSK2,New HSK2","indonesian":"untuk mencuci"},{"hanzi":"洗手间","pinyin":"xǐshǒujiān","english":"restroom, toilet","type":"名","level":"New HSK2","indonesian":"kamar kecil, toilet"},{"hanzi":"下来","pinyin":"xiàlái","english":"to come down","type":"动","level":"New HSK2","indonesian":"turun ke sini"},{"hanzi":"下面","pinyin":"xiàmiàn","english":"below, under","type":"名","level":"New HSK2","indonesian":"di bawah"},{"hanzi":"下去","pinyin":"xiàqù","english":"to go down","type":"动","level":"New HSK2","indonesian":"turun ke sana"},{"hanzi":"小孩儿","pinyin":"xiǎoháir","english":"child, little kid","type":"名","level":"New HSK2","indonesian":"anak kecil"},{"hanzi":"小时候","pinyin":"xiǎoshíhou","english":"childhood","type":"名","level":"New HSK2","indonesian":"waktu kecil, masa kanak-kanak"},{"hanzi":"笑","pinyin":"xiào","english":"to laugh, to smile","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"tertawa; tersenyum"},{"hanzi":"姓","pinyin":"xìng","english":"surname; to be surnamed","type":"名/动","level":"HSK2,New HSK2","indonesian":"nama belakang"},{"hanzi":"姓名","pinyin":"xìngmíng","english":"full name","type":"名","level":"New HSK2","indonesian":"nama lengkap"},{"hanzi":"颜色","pinyin":"yánsè","english":"color","type":"名","level":"YCT2,HSK2,New HSK2","indonesian":"warna"},{"hanzi":"眼睛","pinyin":"yǎnjing","english":"eye","type":"名","level":"YCT1,HSK2,New HSK2","indonesian":"mata"},{"hanzi":"药","pinyin":"yào","english":"medicine, drug","type":"名","level":"YCT3,HSK2,New HSK2","indonesian":"obat"},{"hanzi":"药店","pinyin":"yàodiàn","english":"pharmacy","type":"名","level":"New HSK2","indonesian":"apotek"},{"hanzi":"爷爷","pinyin":"yéye","english":"grandfather","type":"名","level":"New HSK2","indonesian":"kakek"},{"hanzi":"一会儿","pinyin":"yíhuìr","english":"a while, a moment; (soon, in a little while)","type":"数量/副","level":"New HSK2","indonesian":"sebentar, sejenak; (segera, dalam waktu dekat)"},{"hanzi":"已经","pinyin":"yǐjīng","english":"already","type":"副","level":"YCT4,HSK2,New HSK2","indonesian":"sudah"},{"hanzi":"一起","pinyin":"yìqǐ","english":"together","type":"副","level":"YCT3,YCT4,HSK2,New HSK2","indonesian":"bersama"},{"hanzi":"意思","pinyin":"yìsi","english":"meaning, idea","type":"名","level":"YCT3,HSK2,New HSK2","indonesian":"arti"},{"hanzi":"阴","pinyin":"yīn","english":"cloudy","type":"形","level":"HSK2,New HSK2","indonesian":"berawan"},{"hanzi":"因为","pinyin":"yīnwèi","english":"because; because of","type":"介/连","level":"New HSK2","indonesian":"karena; disebabkan oleh"},{"hanzi":"游","pinyin":"yóu","english":"to swim","type":"动","level":"New HSK2","indonesian":"berenang"},{"hanzi":"游泳","pinyin":"yóuyǒng","english":"to swim","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"renang"},{"hanzi":"有意思","pinyin":"yǒu yìsi","english":"interesting, enjoyable","type":"","level":"New HSK2","indonesian":"menarik, menyenangkan"},{"hanzi":"有时","pinyin":"yǒushí","english":"sometimes","type":"副","level":"New HSK2","indonesian":"kadang-kadang"},{"hanzi":"右","pinyin":"yòu","english":"right","type":"名","level":"New HSK2","indonesian":"kanan"},{"hanzi":"右边","pinyin":"yòubian","english":"right side","type":"名","level":"HSK2,New HSK2","indonesian":"di sebelah kanan"},{"hanzi":"鱼","pinyin":"yú","english":"fish","type":"名","level":"YCT1,HSK2,New HSK2","indonesian":"ikan"},{"hanzi":"远","pinyin":"yuǎn","english":"far","type":"形","level":"YCT3,HSK2,New HSK2","indonesian":"jauh"},{"hanzi":"运动","pinyin":"yùndòng","english":"to move, to exercise; sports, exercise","type":"动/名","level":"YCT3,HSK2,New HSK2","indonesian":"olahraga"},{"hanzi":"站","pinyin":"zhàn","english":"station, stop; to stand","type":"名","level":"New HSK2","indonesian":"stasiun, halte; berdiri"},{"hanzi":"丈夫","pinyin":"zhàngfu","english":"husband","type":"名","level":"HSK2,New HSK2","indonesian":"suami"},{"hanzi":"这么","pinyin":"zhème","english":"so, such, like this","type":"代","level":"New HSK2","indonesian":"begini, seperti ini"},{"hanzi":"这样","pinyin":"zhèyàng","english":"like this, so","type":"代","level":"New HSK2","indonesian":"seperti ini, begini"},{"hanzi":"着","pinyin":"zhe","english":"particle indicating ongoing action or state","type":"助","level":"YCT4,HSK2,New HSK2,New HSK4","indonesian":"-ing"},{"hanzi":"正","pinyin":"zhèng","english":"just, exactly, right; (straight)","type":"副/形","level":"New HSK2","indonesian":"tepat, persis, benar; (lurus)"},{"hanzi":"周","pinyin":"zhōu","english":"week; (measure word for circumference, cycle)","type":"名/量","level":"New HSK2","indonesian":"minggu; [kata satuan untuk siklus/keliling]"},{"hanzi":"准备","pinyin":"zhǔnbèi","english":"to prepare","type":"动","level":"YCT4,HSK2,New HSK2","indonesian":"untuk mempersiapkan"},{"hanzi":"自己","pinyin":"zìjǐ","english":"oneself","type":"代","level":"New HSK2","indonesian":"diri sendiri"},{"hanzi":"走","pinyin":"zǒu","english":"to walk","type":"动","level":"YCT3,HSK2,New HSK2","indonesian":"pergi; berjalan"},{"hanzi":"走路","pinyin":"zǒulù","english":"to walk","type":"动","level":"New HSK2","indonesian":"berjalan kaki"},{"hanzi":"足球","pinyin":"zúqiú","english":"soccer, football","type":"名","level":"New HSK2","indonesian":"sepak bola"},{"hanzi":"最","pinyin":"zuì","english":"most, -est","type":"副","level":"YCT3,HSK2,New HSK2","indonesian":"paling"},{"hanzi":"左","pinyin":"zuǒ","english":"left","type":"名","level":"New HSK2","indonesian":"kiri"},{"hanzi":"左边","pinyin":"zuǒbian","english":"left side","type":"名","level":"HSK2,New HSK2","indonesian":"di sebelah kiri"}];
+const EXERCISES = [{"id":1,"words":["他","对","工作","非常","认真"],"answer":["他","对","工作","非常","认真"],"pinyin":"Tā duì gōngzuò fēicháng rènzhēn.","meaning":"Dia sangat serius terhadap pekerjaannya.","grammar":"对+N+Adj","answer_display":"他对工作非常认真"},{"id":2,"words":["父母","对","孩子","的","影响","很大"],"answer":["父母","对","孩子","的","影响","很大"],"pinyin":"Fùmǔ duì háizi de yǐngxiǎng hěn dà.","meaning":"Pengaruh orang tua terhadap anak sangat besar.","grammar":"对+N+的+N+Adj","answer_display":"父母对孩子的影响很大"},{"id":3,"words":["对","他","来说","这件事","不","重要"],"answer":["对","他","来说","这件事","不","重要"],"pinyin":"Duì tā lái shuō, zhè jiàn shì bù zhòngyào.","meaning":"Bagi dia, hal ini tidak penting.","grammar":"对…来说","answer_display":"对他来说这件事不重要"},{"id":4,"words":["这","对","我们","很","有","帮助"],"answer":["这","对","我们","很","有","帮助"],"pinyin":"Zhè duì wǒmen hěn yǒu bāngzhù.","meaning":"Ini sangat membantu kami.","grammar":"对+N+有帮助","answer_display":"这对我们很有帮助"},{"id":5,"words":["她","汉语","说得","越来越","流利"],"answer":["她","汉语","说得","越来越","流利"],"pinyin":"Tā Hànyǔ shuō de yuèláiyuè liúlì.","meaning":"Bahasa Mandarinnya semakin lancar.","grammar":"越来越+Adj","answer_display":"她汉语说得越来越流利"},{"id":6,"words":["天气","越来越","冷","了"],"answer":["天气","越来越","冷","了"],"pinyin":"Tiānqì yuèláiyuè lěng le.","meaning":"Cuaca semakin dingin.","grammar":"越来越+Adj","answer_display":"天气越来越冷了"},{"id":7,"words":["他","的","成绩","越来越","好"],"answer":["他","的","成绩","越来越","好"],"pinyin":"Tā de chéngjì yuèláiyuè hǎo.","meaning":"Nilainya semakin bagus.","grammar":"越来越+Adj","answer_display":"他的成绩越来越好"},{"id":8,"words":["他","把","书","放在","桌子上","了"],"answer":["他","把","书","放在","桌子上","了"],"pinyin":"Tā bǎ shū fàng zài zhuōzi shàng le.","meaning":"Dia meletakkan buku di atas meja.","grammar":"把+N+V+结果","answer_display":"他把书放在桌子上了"},{"id":9,"words":["请","把","窗户","打开"],"answer":["请","把","窗户","打开"],"pinyin":"Qǐng bǎ chuānghù dǎkāi.","meaning":"Tolong buka jendelanya.","grammar":"把+N+V+结果","answer_display":"请把窗户打开"},{"id":10,"words":["她","把","这个","问题","解决","了"],"answer":["她","把","这个","问题","解决","了"],"pinyin":"Tā bǎ zhège wèntí jiějué le.","meaning":"Dia sudah menyelesaikan masalah ini.","grammar":"把+N+V+了","answer_display":"她把这个问题解决了"},{"id":11,"words":["这本书","被","他","借走","了"],"answer":["这本书","被","他","借走","了"],"pinyin":"Zhè běn shū bèi tā jiè zǒu le.","meaning":"Buku ini sudah dipinjam olehnya.","grammar":"被+agent+V","answer_display":"这本书被他借走了"},{"id":12,"words":["比赛","由于","天气","不好","被","取消","了"],"answer":["由于","天气","不好","，","比赛","被","取消","了"],"pinyin":"Yóuyú tiānqì bù hǎo, bǐsài bèi qǔxiāo le.","meaning":"Karena cuaca buruk, pertandingan dibatalkan.","grammar":"由于…被…","answer_display":"由于天气不好比赛被取消了"},{"id":13,"words":["虽然","很累","但是","他","坚持","跑步"],"answer":["虽然","很累","，","但是","他","坚持","跑步"],"pinyin":"Suīrán hěn lèi, dànshì tā jiānchí pǎobù.","meaning":"Meskipun sangat lelah, dia tetap berlari.","grammar":"虽然…但是…","answer_display":"虽然很累但是他坚持跑步"},{"id":14,"words":["尽管","下雨","他","还是","去","了"],"answer":["尽管","下雨","，","他","还是","去","了"],"pinyin":"Jǐnguǎn xià yǔ, tā háishì qù le.","meaning":"Meskipun hujan, dia tetap pergi.","grammar":"尽管…还是…","answer_display":"尽管下雨他还是去了"},{"id":15,"words":["只有","努力","学习","才能","取得","好成绩"],"answer":["只有","努力","学习","，","才能","取得","好成绩"],"pinyin":"Zhǐyǒu nǔlì xuéxí, cáinéng qǔdé hǎo chéngjì.","meaning":"Hanya dengan belajar keras, baru bisa mendapatkan nilai bagus.","grammar":"只有…才…","answer_display":"只有努力学习才能取得好成绩"},{"id":16,"words":["只有","坚持","才能","成功"],"answer":["只有","坚持","，","才能","成功"],"pinyin":"Zhǐyǒu jiānchí, cáinéng chénggōng.","meaning":"Hanya dengan tekun, baru bisa sukses.","grammar":"只有…才…","answer_display":"只有坚持才能成功"},{"id":17,"words":["既然","决定","了","就","好好","做"],"answer":["既然","决定","了","，","就","好好","做"],"pinyin":"Jìrán juédìng le, jiù hǎohāo zuò.","meaning":"Karena sudah memutuskan, lakukan dengan baik.","grammar":"既然…就…","answer_display":"既然决定了就好好做"},{"id":18,"words":["不管","多忙","他","都","坚持","锻炼"],"answer":["不管","多忙","，","他","都","坚持","锻炼"],"pinyin":"Bùguǎn duō máng, tā dōu jiānchí duànliàn.","meaning":"Tidak peduli sesibuk apapun, dia tetap olahraga.","grammar":"不管…都…","answer_display":"不管多忙他都坚持锻炼"},{"id":19,"words":["不管","结果","怎样","我","都","支持","你"],"answer":["不管","结果","怎样","，","我","都","支持","你"],"pinyin":"Bùguǎn jiéguǒ zěnyàng, wǒ dōu zhīchí nǐ.","meaning":"Apapun hasilnya, aku mendukungmu.","grammar":"不管…都…","answer_display":"不管结果怎样我都支持你"},{"id":20,"words":["她","是","一个","既","聪明","又","勤奋","的","学生"],"answer":["她","是","一个","既","聪明","又","勤奋","的","学生"],"pinyin":"Tā shì yīgè jì cōngmíng yòu qínfèn de xuéshēng.","meaning":"Dia adalah seorang murid yang pintar sekaligus rajin.","grammar":"既…又…","answer_display":"她是一个既聪明又勤奋的学生"},{"id":21,"words":["这道菜","既","好吃","又","便宜"],"answer":["这道菜","既","好吃","又","便宜"],"pinyin":"Zhè dào cài jì hào chī yòu piányí.","meaning":"Masakan ini enak sekaligus murah.","grammar":"既…又…","answer_display":"这道菜既好吃又便宜"},{"id":22,"words":["随着","科技","的","发展","生活","变得","更方便"],"answer":["随着","科技","的","发展","，","生活","变得","更方便"],"pinyin":"Suízhe kējì de fāzhǎn, shēnghuó biàn de gèng fāngbiàn.","meaning":"Seiring perkembangan teknologi, kehidupan menjadi lebih mudah.","grammar":"随着+N+的+N","answer_display":"随着科技的发展生活变得更方便"},{"id":23,"words":["随着","年龄","的","增长","他","越来越","成熟"],"answer":["随着","年龄","的","增长","，","他","越来越","成熟"],"pinyin":"Suízhe niánlíng de zēngzhǎng, tā yuèláiyuè chéngshú.","meaning":"Seiring bertambahnya usia, dia semakin matang.","grammar":"随着+N+的+N","answer_display":"随着年龄的增长他越来越成熟"},{"id":24,"words":["除了","英语","以外","他","还","会","法语"],"answer":["除了","英语","以外","，","他","还","会","法语"],"pinyin":"Chúle Yīngyǔ yǐwài, tā hái huì Fǎyǔ.","meaning":"Selain bahasa Inggris, dia juga bisa bahasa Perancis.","grammar":"除了…以外，还…","answer_display":"除了英语以外他还会法语"},{"id":25,"words":["除了","工作","以外","他","还","喜欢","旅游"],"answer":["除了","工作","以外","，","他","还","喜欢","旅游"],"pinyin":"Chúle gōngzuò yǐwài, tā hái xǐhuān lǚyóu.","meaning":"Selain bekerja, dia juga suka berwisata.","grammar":"除了…以外，还…","answer_display":"除了工作以外他还喜欢旅游"},{"id":26,"words":["我","宁可","在家","休息","也不","想","出门"],"answer":["我","宁可","在家","休息","，","也不","想","出门"],"pinyin":"Wǒ nìngkě zài jiā xiūxi, yě bù xiǎng chūmén.","meaning":"Saya lebih baik istirahat di rumah daripada keluar.","grammar":"宁可…也不…","answer_display":"我宁可在家休息也不想出门"},{"id":27,"words":["与其","抱怨","不如","采取","行动"],"answer":["与其","抱怨","，","不如","采取","行动"],"pinyin":"Yǔqí bàoyuàn, bùrú cǎiqǔ xíngdòng.","meaning":"Daripada mengeluh, lebih baik ambil tindakan.","grammar":"与其…不如…","answer_display":"与其抱怨不如采取行动"},{"id":28,"words":["他","是","昨天","到","的","北京"],"answer":["他","是","昨天","到","北京","的"],"pinyin":"Tā shì zuótiān dào Běijīng de.","meaning":"Dia tiba di Beijing kemarin.","grammar":"是…的 (emphasis)","answer_display":"他是昨天到北京的"},{"id":29,"words":["这件事","是","他","告诉","我","的"],"answer":["这件事","是","他","告诉","我","的"],"pinyin":"Zhè jiàn shì shì tā gàosù wǒ de.","meaning":"Hal ini adalah dia yang memberitahu saya.","grammar":"是…的 (emphasis)","answer_display":"这件事是他告诉我的"},{"id":30,"words":["连","他","都","不","知道","这件事"],"answer":["连","他","都","不","知道","这件事"],"pinyin":"Lián tā dōu bù zhīdào zhè jiàn shì.","meaning":"Bahkan dia pun tidak tahu soal ini.","grammar":"连…都/也…","answer_display":"连他都不知道这件事"},{"id":31,"words":["这道题","连","老师","也","觉得","难"],"answer":["这道题","连","老师","也","觉得","难"],"pinyin":"Zhè dào tí lián lǎoshī yě juéde nán.","meaning":"Soal ini bahkan guru pun merasa sulit.","grammar":"连…都/也…","answer_display":"这道题连老师也觉得难"},{"id":32,"words":["他","跑","得","非常","快"],"answer":["他","跑","得","非常","快"],"pinyin":"Tā pǎo de fēicháng kuài.","meaning":"Dia berlari sangat cepat.","grammar":"V+得+Adj","answer_display":"他跑得非常快"},{"id":33,"words":["她","唱歌","唱","得","很好听"],"answer":["她","唱歌","唱","得","很好听"],"pinyin":"Tā chànggē chàng de hěn hǎotīng.","meaning":"Dia bernyanyi dengan sangat merdu.","grammar":"V+O+V+得+Adj","answer_display":"她唱歌唱得很好听"},{"id":34,"words":["因为","生病","所以","他","没","来","上班"],"answer":["因为","生病","，","所以","他","没","来","上班"],"pinyin":"Yīnwèi shēngbìng, suǒyǐ tā méi lái shàngbān.","meaning":"Karena sakit, dia tidak datang bekerja.","grammar":"因为…所以…","answer_display":"因为生病所以他没来上班"},{"id":35,"words":["因为","不努力","所以","他","没","通过","考试"],"answer":["因为","不努力","，","所以","他","没","通过","考试"],"pinyin":"Yīnwèi bù nǔlì, suǒyǐ tā méi tōngguò kǎoshì.","meaning":"Karena tidak bekerja keras, dia tidak lulus ujian.","grammar":"因为…所以…","answer_display":"因为不努力所以他没通过考试"},{"id":36,"words":["如果","明天","下雨","我们","就","不","去","了"],"answer":["如果","明天","下雨","，","我们","就","不","去","了"],"pinyin":"Rúguǒ míngtiān xià yǔ, wǒmen jiù bù qù le.","meaning":"Jika besok hujan, kita tidak jadi pergi.","grammar":"如果…就…","answer_display":"如果明天下雨我们就不去了"},{"id":37,"words":["如果","有","机会","我","想","去","中国","留学"],"answer":["如果","有","机会","，","我","想","去","中国","留学"],"pinyin":"Rúguǒ yǒu jīhuì, wǒ xiǎng qù Zhōngguó liúxué.","meaning":"Jika ada kesempatan, saya ingin belajar di Tiongkok.","grammar":"如果…就…","answer_display":"如果有机会我想去中国留学"},{"id":38,"words":["学生","向","老师","提出","了","问题"],"answer":["学生","向","老师","提出","了","问题"],"pinyin":"Xuéshēng xiàng lǎoshī tíchū le wèntí.","meaning":"Murid mengajukan pertanyaan kepada guru.","grammar":"向+N+V","answer_display":"学生向老师提出了问题"},{"id":39,"words":["他","向","我","借","了","一本书"],"answer":["他","向","我","借","了","一本书"],"pinyin":"Tā xiàng wǒ jiè le yī běn shū.","meaning":"Dia meminjam sebuah buku dari saya.","grammar":"向+N+V","answer_display":"他向我借了一本书"},{"id":40,"words":["他","总是","为","别人","着","想"],"answer":["他","总是","为","别人","着","想"],"pinyin":"Tā zǒng shì wèi biérén zhuó xiǎng.","meaning":"Dia selalu memikirkan orang lain.","grammar":"为+N+V","answer_display":"他总是为别人着想"},{"id":41,"words":["我","为","这次","比赛","准备","了","很久"],"answer":["我","为","这次","比赛","准备","了","很久"],"pinyin":"Wǒ wèi zhè cì bǐsài zhǔnbèi le hěn jiǔ.","meaning":"Saya sudah mempersiapkan pertandingan ini lama sekali.","grammar":"为+N+V","answer_display":"我为这次比赛准备了很久"},{"id":42,"words":["通过","努力","他","终于","实现","了","梦想"],"answer":["通过","努力","，","他","终于","实现","了","梦想"],"pinyin":"Tōngguò nǔlì, tā zhōngyú shíxiàn le mèngxiǎng.","meaning":"Melalui kerja keras, dia akhirnya mewujudkan impiannya.","grammar":"通过+N","answer_display":"通过努力他终于实现了梦想"},{"id":43,"words":["通过","这次","活动","我们","了解","了","很多"],"answer":["通过","这次","活动","，","我们","了解","了","很多"],"pinyin":"Tōngguò zhè cì huódòng, wǒmen liǎojiě le hěn duō.","meaning":"Melalui kegiatan ini, kami banyak belajar.","grammar":"通过+N","answer_display":"通过这次活动我们了解了很多"},{"id":44,"words":["他","以","诚实","为","最","重要","的","品质"],"answer":["他","以","诚实","为","最","重要","的","品质"],"pinyin":"Tā yǐ chéngshí wéi zuì zhòngyào de pǐnzhì.","meaning":"Dia menganggap kejujuran sebagai kualitas terpenting.","grammar":"以…为…","answer_display":"他以诚实为最重要的品质"},{"id":45,"words":["他","在","实践","中","学到","了","很多"],"answer":["他","在","实践","中","学到","了","很多"],"pinyin":"Tā zài shíjiàn zhōng xuédào le hěn duō.","meaning":"Dia belajar banyak dalam praktik.","grammar":"在+N+中","answer_display":"他在实践中学到了很多"},{"id":46,"words":["在","工作","上","他","非常","认真","负责"],"answer":["在","工作","上","，","他","非常","认真","负责"],"pinyin":"Zài gōngzuò shàng, tā fēicháng rènzhēn fùzé.","meaning":"Dalam pekerjaan, dia sangat serius dan bertanggung jawab.","grammar":"在+N+上","answer_display":"在工作上他非常认真负责"},{"id":47,"words":["他","之所以","成功","是因为","他","付出","了","很多","努力"],"answer":["他","之所以","成功","，","是因为","他","付出","了","很多","努力"],"pinyin":"Tā zhīsuǒyǐ chénggōng, shì yīnwèi tā fùchū le hěn duō nǔlì.","meaning":"Alasan dia sukses adalah karena dia bekerja sangat keras.","grammar":"之所以…是因为…","answer_display":"他之所以成功是因为他付出了很多努力"},{"id":48,"words":["他","从","早上","到","晚上","一直","在","学习"],"answer":["他","从","早上","到","晚上","一直","在","学习"],"pinyin":"Tā cóng zǎoshang dào wǎnshang yīzhí zài xuéxí.","meaning":"Dia belajar terus dari pagi hingga malam.","grammar":"从…到…","answer_display":"他从早上到晚上一直在学习"},{"id":49,"words":["她","一边","听音乐","一边","做作业"],"answer":["她","一边","听音乐","，","一边","做作业"],"pinyin":"Tā yībiān tīng yīnyuè, yībiān zuò zuòyè.","meaning":"Dia mendengarkan musik sambil mengerjakan PR.","grammar":"一边…一边…","answer_display":"她一边听音乐一边做作业"},{"id":50,"words":["先","洗手","然后","再","吃饭"],"answer":["先","洗手","，","然后","再","吃饭"],"pinyin":"Xiān xǐshǒu, rán hòu zài chīfàn.","meaning":"Cuci tangan dulu, baru makan.","grammar":"先…然后…","answer_display":"先洗手然后再吃饭"}];
+const EXAMPLES = {"啊":{"py":"a","id":"ah; oh","en":"ah, oh"},"爱好":{"py":"àihào","id":"menyukai; hobi","en":"to like; hobby"},"白色":{"py":"báisè","id":"putih","en":"white"},"班":{"py":"bān","id":"kelas; regu","en":"class, team; (measure word for groups)"},"帮":{"py":"bāng","id":"membantu","en":"to help"},"帮忙":{"py":"bāngmáng","id":"membantu","en":"to help"},"包":{"py":"bāo","id":"membungkus, mengemas; tas; [kata satuan untuk bungkusan]","en":"to wrap, to pack; bag; measure word for bundles"},"本子":{"py":"běnzi","id":"buku catatan","en":"notebook"},"比":{"py":"bǐ","id":"untuk membandingkan","en":"to compare; than"},"笔":{"py":"bǐ","id":"pena; [kata satuan untuk alat tulis]","en":"pen; (measure word for writing tools)"},"别":{"py":"bié","id":"memisahkan","en":"don't, not bad"},"不错":{"py":"búcuò","id":"tidak buruk, cukup bagus","en":"not bad, pretty good"},"不好意思":{"py":"bù hǎoyìsi","id":"maaf, malu","en":"sorry, embarrassed"},"长":{"py":"cháng","id":"panjang","en":"long"},"车站":{"py":"chēzhàn","id":"halte; stasiun","en":"station"},"出":{"py":"chū","id":"untuk keluar","en":"to go out, to leave"},"出国":{"py":"chūguó","id":"pergi ke luar negeri","en":"to go abroad"},"出来":{"py":"chūlái","id":"keluar","en":"to come out"},"出门":{"py":"chūmén","id":"keluar rumah","en":"to go out"},"出去":{"py":"chūqù","id":"keluar","en":"to go out"},"床":{"py":"chuáng","id":"tempat tidur","en":"bed"},"词":{"py":"cí","id":"kata, istilah","en":"word, term"},"次":{"py":"cì","id":"waktu","en":"measure word of time or occasion; (next in order)"},"从":{"py":"cóng","id":"dari; mengikuti; mematuhi","en":"from; (ever)"},"从小":{"py":"cóngxiǎo","id":"sejak kecil","en":"from childhood"},"错":{"py":"cuò","id":"salah","en":"wrong, mistaken"},"打":{"py":"dǎ","id":"memukul, bermain, membuat","en":"to hit, to play, to make"},"打车":{"py":"dǎchē","id":"naik taksi","en":"to take a taxi"},"打开":{"py":"dǎkāi","id":"membuka","en":"to open"},"但":{"py":"dàn","id":"tetapi; (hanya)","en":"but, however; (only, merely)"},"但是":{"py":"dànshì","id":"tetapi, namun","en":"but, however"},"得":{"py":"de","id":"[partikel untuk menghubungkan kata kerja dengan kata keterangan]","en":"particle indicating degree or manner"},"地":{"py":"de","id":"partikel yang mengubah kata sifat menjadi kata keterangan","en":"particle modifying an adjective into an adverb"},"等":{"py":"děng","id":"Tunggu","en":"to wait; (and so on, until)"},"地铁":{"py":"dìtiě","id":"kereta bawah tanah, MRT","en":"subway, metro"},"点":{"py":"diǎn","id":"titik","en":"to light, to ignite; (point, dot; to order)"},"懂":{"py":"dǒng","id":"untuk memahami","en":"to understand"},"动":{"py":"dòng","id":"bergerak, bertindak","en":"to move, to act"},"饭馆":{"py":"fànguǎn","id":"restoran","en":"restaurant"},"飞":{"py":"fēi","id":"terbang","en":"to fly"},"高":{"py":"gāo","id":"tinggi; jangkung","en":"tall, high; height"},"高中":{"py":"gāozhōng","id":"sekolah menengah atas","en":"high school"},"告诉":{"py":"gàosu","id":"untuk memberi tahu","en":"to tell"},"个子":{"py":"gèzi","id":"tinggi badan, postur","en":"height, stature"},"跟":{"py":"gēn","id":"dengan; dan; (tumit; mengikuti, menemani)","en":"with; and; (heel; to follow, to accompany)"},"公交车":{"py":"gōngjiāochē","id":"bus","en":"bus"},"过":{"py":"guò / guo","id":"melewati, melintasi; berlebihan; [penanda setelah kata kerja untuk menunjukkan pengalaman]","en":"to pass, to cross; excessive; particle indicating past experience"},"过来":{"py":"guòlái","id":"datang ke sini","en":"to come over"},"过年":{"py":"guònián","id":"merayakan tahun baru","en":"to celebrate the New Year"},"过去":{"py":"guòqù","id":"pergi ke sana","en":"to go over"},"还是":{"py":"háishi","id":"masih; atau","en":"still; or"},"黑色":{"py":"hēisè","id":"hitam","en":"black"},"红茶":{"py":"hóngchá","id":"teh hitam","en":"black tea"},"红色":{"py":"hóngsè","id":"merah","en":"red"},"后面":{"py":"hòumiàn","id":"di belakang","en":"behind, back"},"花":{"py":"huā","id":"menghabiskan (uang atau waktu); bunga; (berwarna-warni)","en":"to spend (money or time); flower; (colorful)"},"画":{"py":"huà","id":"menggambar, melukis; lukisan, gambar","en":"to draw, to paint; painting, picture"},"坏":{"py":"huài","id":"buruk, rusak","en":"bad, broken"},"回来":{"py":"huílái","id":"kembali ke sini","en":"to come back"},"回去":{"py":"huíqù","id":"kembali ke sana","en":"to go back"},"机场":{"py":"jīchǎng","id":"bandara","en":"airport"},"机票":{"py":"jīpiào","id":"tiket pesawat","en":"airplane ticket"},"记得":{"py":"jìde","id":"ingat","en":"to remember"},"间":{"py":"jiān","id":"[kata satuan untuk ruangan]; di antara","en":"measure word for rooms; between"},"教":{"py":"jiāo","id":"mengajar","en":"to teach"},"教室":{"py":"jiàoshì","id":"kelas","en":"classroom"},"介绍":{"py":"jièshào","id":"memperkenalkan","en":"to introduce"},"进":{"py":"jìn","id":"untuk masuk","en":"to enter"},"近":{"py":"jìn","id":"dekat; di dekatnya","en":"near, close"},"进来":{"py":"jìnlái","id":"masuk ke sini","en":"to come in"},"进去":{"py":"jìnqù","id":"masuk ke sana","en":"to go in"},"经常":{"py":"jīngcháng","id":"sering","en":"often"},"酒店":{"py":"jiǔdiàn","id":"hotel","en":"hotel"},"就":{"py":"jiù","id":"hanya","en":"just, then; (as early as, only, as soon as)"},"咖啡":{"py":"kāfēi","id":"kopi","en":"coffee"},"开始":{"py":"kāishǐ","id":"untuk memulai","en":"to start; beginning"},"开学":{"py":"kāixué","id":"sekolah dimulai","en":"school starts"},"考":{"py":"kǎo","id":"menguji, mengikuti ujian","en":"to test, to take an exam"},"考试":{"py":"kǎoshì","id":"penyelidikan","en":"to take an exam; exam"},"可能":{"py":"kěnéng","id":"mungkin; bisa jadi","en":"possible; possibility; may"},"裤子":{"py":"kùzi","id":"celana","en":"pants"},"快":{"py":"kuài","id":"cepat; kilat","en":"fast; soon, quickly"},"快乐":{"py":"kuàilè","id":"senang","en":"happy, joyful"},"快要":{"py":"kuàiyào","id":"segera, hampir","en":"soon, almost"},"篮球":{"py":"lánqiú","id":"bola basket","en":"basketball"},"累":{"py":"lèi","id":"lelah","en":"tired; to tire"},"离":{"py":"lí","id":"menjauh; meninggalkan","en":"to leave, to be away from"},"里面":{"py":"lǐmiàn","id":"di dalam","en":"inside"},"楼":{"py":"lóu","id":"gedung, lantai","en":"building, floor"},"路":{"py":"lù","id":"jalan; rute; nomor bus","en":"road, path"},"路上":{"py":"lùshang","id":"di jalan","en":"on the road"},"旅游":{"py":"lǚyóu","id":"pariwisata","en":"to travel"},"绿茶":{"py":"lǜchá","id":"teh hijau","en":"green tea"},"绿色":{"py":"lǜsè","id":"warna hijau; (hijau)","en":"green color; (green)"},"慢":{"py":"màn","id":"lambat","en":"slow"},"没意思":{"py":"méi yìsi","id":"membosankan, tidak menarik","en":"boring, uninteresting"},"每":{"py":"měi","id":"setiap; masing-masing","en":"every, each; (per)"},"门":{"py":"mén","id":"pintu","en":"door, gate"},"门口":{"py":"ménkǒu","id":"pintu masuk","en":"doorway, entrance"},"门票":{"py":"ménpiào","id":"tiket masuk","en":"ticket"},"面":{"py":"miàn","id":"akhiran penanda ciri seseorang; (menghadap; sisi, aspek; [kata satuan untuk benda datar])","en":"indicating a person with a certain characteristic; (to face; side, aspect; measure word for flat objects)"},"名":{"py":"míng","id":"nama, reputasi; [kata satuan untuk orang]","en":"name, reputation; measure word for people"},"拿":{"py":"ná","id":"mengambil, memegang","en":"to take, to hold"},"那么":{"py":"nàme","id":"begitu, seperti itu; kalau begitu","en":"so, like that; then"},"那样":{"py":"nàyàng","id":"seperti itu","en":"like that"},"奶茶":{"py":"nǎichá","id":"teh susu","en":"milk tea"},"奶奶":{"py":"nǎinai","id":"nenek","en":"grandmother"},"男孩儿":{"py":"nánháir","id":"anak laki-laki","en":"boy"},"鸟":{"py":"niǎo","id":"burung","en":"bird"},"女孩儿":{"py":"nǚháir","id":"anak perempuan","en":"girl"},"旁边":{"py":"pángbiān","id":"di sebelah","en":"side"},"跑":{"py":"pǎo","id":"berlari","en":"to run"},"跑步":{"py":"pǎobù","id":"berlari; jogging","en":"to run, jogging"},"票":{"py":"piào","id":"tiket","en":"ticket"},"妻子":{"py":"qīzi","id":"istri","en":"wife"},"起来":{"py":"qǐlái","id":"bangun, berdiri; [dipakai setelah kata kerja untuk menunjukkan gerakan ke atas atau permulaan]","en":"to get up, to stand up; used after verbs to indicate upward movement or beginning"},"前面":{"py":"qiánmiàn","id":"di depan","en":"front"},"晴":{"py":"qíng","id":"bagus; cerah","en":"sunny, clear"},"球":{"py":"qiú","id":"bola","en":"ball, sphere"},"让":{"py":"ràng","id":"mengizinkan; memperbolehkan","en":"to let, to allow; (by)"},"肉":{"py":"ròu","id":"daging","en":"meat"},"商场":{"py":"shāngchǎng","id":"pusat perbelanjaan","en":"shopping mall"},"上来":{"py":"shànglái","id":"naik ke sini","en":"to come up"},"上面":{"py":"shàngmiàn","id":"di atas","en":"above, top"},"上去":{"py":"shàngqù","id":"naik ke sana","en":"to go up"},"上网":{"py":"shàngwǎng","id":"berselancar di internet","en":"to go online, to surf the Internet"},"身体":{"py":"shēntǐ","id":"tubuh; kesehatan","en":"body"},"生日":{"py":"shēngrì","id":"hari ulang tahun","en":"birthday"},"时":{"py":"shí","id":"waktu, saat; (musim, periode)","en":"time, moment; (season, period)"},"事情":{"py":"shìqing","id":"masalah; urusan; hal","en":"matter, affair"},"手":{"py":"shǒu","id":"tangan","en":"hand"},"手表":{"py":"shǒubiǎo","id":"jam tangan","en":"watch, wristwatch"},"书包":{"py":"shūbāo","id":"tas sekolah","en":"backpack, schoolbag"},"舒服":{"py":"shūfu","id":"nyaman","en":"comfortable"},"送":{"py":"sòng","id":"memberi (hadiah); mengantarkan; mengantar seseorang","en":"to give, to send, to see off"},"虽然":{"py":"suīrán","id":"meskipun","en":"although"},"所以":{"py":"suǒyǐ","id":"jadi, oleh karena itu","en":"so, therefore"},"疼":{"py":"téng","id":"sakit, nyeri; (menyakiti)","en":"painful, sore; (to hurt)"},"踢":{"py":"tī","id":"menendang","en":"to kick"},"题":{"py":"tí","id":"pertanyaan","en":"question, problem, topic"},"条":{"py":"tiáo","id":"[kata satuan untuk benda panjang dan tipis]; (klausa, butir)","en":"measure word for long, thin, or strip-like objects; (clause, item)"},"跳舞":{"py":"tiàowǔ","id":"menari","en":"to dance"},"头":{"py":"tóu","id":"kepala; [kata satuan untuk hewan]; (pertama)","en":"head; (measure word for animals); (first)"},"外国":{"py":"wàiguó","id":"negara asing","en":"foreign country"},"外面":{"py":"wàimiàn","id":"di luar","en":"outside"},"完":{"py":"wán","id":"untuk menyelesaikan; [+ kata kerja menunjukkan penyelesaian]","en":"to finish"},"万":{"py":"wàn","id":"sepuluh ribu","en":"ten thousand"},"往":{"py":"wǎng","id":"terhadap","en":"to go; toward"},"网上":{"py":"wǎngshang","id":"daring, online","en":"online"},"忘":{"py":"wàng","id":"lupa","en":"to forget"},"位":{"py":"wèi","id":"[kata satuan untuk orang]","en":"measure word for people"},"为什么":{"py":"wèi shénme","id":"Mengapa?","en":"why"},"希望":{"py":"xīwàng","id":"harapan; keinginan","en":"to hope"},"洗":{"py":"xǐ","id":"untuk mencuci","en":"to wash"},"洗手间":{"py":"xǐshǒujiān","id":"kamar kecil, toilet","en":"restroom, toilet"},"下来":{"py":"xiàlái","id":"turun ke sini","en":"to come down"},"下面":{"py":"xiàmiàn","id":"di bawah","en":"below, under"},"下去":{"py":"xiàqù","id":"turun ke sana","en":"to go down"},"小孩儿":{"py":"xiǎoháir","id":"anak kecil","en":"child, little kid"},"小时候":{"py":"xiǎoshíhou","id":"waktu kecil, masa kanak-kanak","en":"childhood"},"笑":{"py":"xiào","id":"tertawa; tersenyum","en":"to laugh, to smile"},"姓":{"py":"xìng","id":"nama belakang","en":"surname; to be surnamed"},"姓名":{"py":"xìngmíng","id":"nama lengkap","en":"full name"},"颜色":{"py":"yánsè","id":"warna","en":"color"},"眼睛":{"py":"yǎnjing","id":"mata","en":"eye"},"药":{"py":"yào","id":"obat","en":"medicine, drug"},"药店":{"py":"yàodiàn","id":"apotek","en":"pharmacy"},"爷爷":{"py":"yéye","id":"kakek","en":"grandfather"},"一会儿":{"py":"yíhuìr","id":"sebentar, sejenak; (segera, dalam waktu dekat)","en":"a while, a moment; (soon, in a little while)"},"已经":{"py":"yǐjīng","id":"sudah","en":"already"},"一起":{"py":"yìqǐ","id":"bersama","en":"together"},"意思":{"py":"yìsi","id":"arti","en":"meaning, idea"},"阴":{"py":"yīn","id":"berawan","en":"cloudy"},"因为":{"py":"yīnwèi","id":"karena; disebabkan oleh","en":"because; because of"},"游":{"py":"yóu","id":"berenang","en":"to swim"},"游泳":{"py":"yóuyǒng","id":"renang","en":"to swim"},"有意思":{"py":"yǒu yìsi","id":"menarik, menyenangkan","en":"interesting, enjoyable"},"有时":{"py":"yǒushí","id":"kadang-kadang","en":"sometimes"},"右":{"py":"yòu","id":"kanan","en":"right"},"右边":{"py":"yòubian","id":"di sebelah kanan","en":"right side"},"鱼":{"py":"yú","id":"ikan","en":"fish"},"远":{"py":"yuǎn","id":"jauh","en":"far"},"运动":{"py":"yùndòng","id":"olahraga","en":"to move, to exercise; sports, exercise"},"站":{"py":"zhàn","id":"stasiun, halte; berdiri","en":"station, stop; to stand"},"丈夫":{"py":"zhàngfu","id":"suami","en":"husband"},"这么":{"py":"zhème","id":"begini, seperti ini","en":"so, such, like this"},"这样":{"py":"zhèyàng","id":"seperti ini, begini","en":"like this, so"},"着":{"py":"zhe","id":"-ing","en":"particle indicating ongoing action or state"},"正":{"py":"zhèng","id":"tepat, persis, benar; (lurus)","en":"just, exactly, right; (straight)"},"周":{"py":"zhōu","id":"minggu; [kata satuan untuk siklus/keliling]","en":"week; (measure word for circumference, cycle)"},"准备":{"py":"zhǔnbèi","id":"untuk mempersiapkan","en":"to prepare"},"自己":{"py":"zìjǐ","id":"diri sendiri","en":"oneself"},"走":{"py":"zǒu","id":"pergi; berjalan","en":"to walk"},"走路":{"py":"zǒulù","id":"berjalan kaki","en":"to walk"},"足球":{"py":"zúqiú","id":"sepak bola","en":"soccer, football"},"最":{"py":"zuì","id":"paling","en":"most, -est"},"左":{"py":"zuǒ","id":"kiri","en":"left"},"左边":{"py":"zuǒbian","id":"di sebelah kiri","en":"left side"}};
+
+const TYPE_ID = {
+  '名':'Kata Benda (Noun)','动':'Kata Kerja (Verb)','形':'Kata Sifat (Adjective)','副':'Kata Keterangan (Adverb)',
+  '连':'Kata Hubung (Conjunction)','介':'Kata Depan (Preposition)','代':'Kata Ganti (Pronoun)','叹':'Kata Seru (Interjection)',
+  '助':'Partikel (Particle)','量':'Kata Satuan(Classifier)','数':'Kata Bilangan (Number)','前缀':'Awalan (Prefix)',
+  '后缀':'Akhiran (Suffix)','数量':'Bilangan+Satuan (Number-Classifier)','行':'Kata Kerja (Verb)',
+  '动/名':'KK/KB','名/动':'KB/KK','副/动':'KKet/KK','形/副':'KS/KKet',
+  '动/形':'KK/KS','形/动':'KS/KK','名/形':'KB/KS','形/名':'KS/KB',
+  '动/副':'KK/KKet','副/形':'KKet/KS','量/名':'KSat/KB','动/量':'KK/KSat'
+};
+
+// ============================================================
+//  STATE — BROWSE
+// ============================================================
+let displayMode = 'grid';
+let page = 1;
+let pageSize = 50;
+let filtered = [...VOCAB];
+let bookmarks = new Set(JSON.parse(localStorage.getItem('hsk5_bm')||'[]'));
+let learned   = new Set(JSON.parse(localStorage.getItem('hsk5_learned')||'[]'));
+let bmOnly    = false;
+let alphaFilter = '';
+let searchQ   = '';
+let typeF     = '';
+let curModal  = null;
+let showPinyin = true;
+let showEn = true;
+let showId = true;  
+
+// ============================================================
+//  STATE — FLASHCARD
+// ============================================================
+let fcQueue = [];
+let fcIdx   = 0;
+let fcKnownSet = new Set();
+let fcSkipSet  = new Set();
+let fcBmOnly   = false;
+let fcFlipped  = false;
+
+// ============================================================
+//  STATE — ORDERING
+// ============================================================
+let ordQueue   = [];   // exercises for current session
+let ordIdx     = 0;
+let ordScore   = 0;
+let ordPlaced  = [];   // {word, bankIdx}
+let ordChecked = false;
+
+// ============================================================
+//  INIT
+// ============================================================
+function init() {
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQ = e.target.value.toLowerCase();
+    page = 1;
+    applyFilters();
+  });
+  document.getElementById('typeFilter').addEventListener('change', e => {
+    typeF = e.target.value;
+    page = 1;
+    applyFilters();
+  });
+  updateStats();
+  buildAlphaBar();
+  applyFilters();
+  initOrdering();
+}
+
+// ============================================================
+//  TABS
+// ============================================================
+function showTab(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'flash' && fcQueue.length === 0) initFlashcards();
+}
+
+// ============================================================
+//  BROWSE — FILTER & RENDER
+// ============================================================
+function applyFilters() {
+  filtered = VOCAB.filter(w => {
+    if (bmOnly && !bookmarks.has(w.hanzi)) return false;
+    if (alphaFilter && normalizeFirstLetter(w.pinyin) !== alphaFilter) return false;
+    if (typeF && !w.type.startsWith(typeF)) return false;
+    if (searchQ) {
+      return w.hanzi.includes(searchQ) ||
+             w.pinyin.toLowerCase().includes(searchQ) ||
+             w.english.toLowerCase().includes(searchQ) ||
+             (w.indonesian||'').toLowerCase().includes(searchQ);
+    }
+    return true;
+  });
+  document.getElementById('resultCount').textContent =
+    `Menampilkan ${filtered.length} kata dari ${VOCAB.length} total`;
+  renderPage();
+  renderPagination();
+}
+
+function renderPage() {
+  const c  = document.getElementById('vocabContainer');
+  const lh = document.getElementById('listHeader');
+
+  // Kalau ada alphaFilter → tampilkan semua tanpa pagination
+  const items = alphaFilter ? filtered : filtered.slice((page-1)*pageSize, page*pageSize);
+
+  if (!items.length) {
+    c.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div>Tidak ada kata ditemukan</div></div>';
+    lh.style.display = 'none'; return;
+  }
+  if (displayMode === 'list') {
+    lh.style.display = 'grid';
+    c.className = 'list-view';
+    c.innerHTML = items.map((w,i) => listItem(w,i)).join('');
+  } else {
+    lh.style.display = 'none';
+    c.className = 'grid-view';
+    c.innerHTML = items.map((w,i) => card(w,i)).join('');
+  }
+}
+
+function setPageSize(n) {
+  pageSize = n;
+  page = 1;
+  renderPage();
+  renderPagination();
+}
+
+function card(w, i) {
+  const bm = bookmarks.has(w.hanzi);
+  const tl = TYPE_ID[w.type] || w.type;
+  const id = w.indonesian || w.english;
+  return `<div class="vocab-card${bm?' bm':''}" onclick="openModal('${esc(w.hanzi)}')" style="animation-delay:${i*.018}s">
+    <div class="card-top">
+      <div class="hanzi">${w.hanzi}</div>
+      <div class="card-btns">
+        <button class="icon-btn${bm?' on':''}" onclick="toggleBm(event,'${esc(w.hanzi)}')" title="Tandai">🔖</button>
+        <button class="icon-btn" onclick="speakEv(event,'${esc(w.hanzi)}')" title="Ucapkan">🔊</button>
+      </div>
+    </div>
+    <div class="pinyin">${w.pinyin}</div>
+    ${w.type?`<div class="type-badge">${w.type} · ${tl}</div>`:''}
+    <div class="trans-block">
+      <div class="trans-row"><span class="t-lang en">EN</span><span class="t-text">${w.english}</span></div>
+      <div class="trans-row"><span class="t-lang id">ID</span><span class="t-text id">${id}</span></div>
+    </div>
+  </div>`;
+}
+
+function listItem(w, i) {
+  const bm = bookmarks.has(w.hanzi);
+  const id = w.indonesian || w.english;
+  return `<div class="list-item" onclick="openModal('${esc(w.hanzi)}')" style="animation-delay:${i*.01}s">
+    <span class="l-hanzi">${w.hanzi}</span>
+    <span class="l-pinyin">${w.pinyin}</span>
+    <span class="l-id">${id}</span>
+    <span class="l-en">${w.english}</span>
+    <span class="l-type">${w.type}</span>
+    <span><button class="icon-btn${bm?' on':''}" onclick="toggleBm(event,'${esc(w.hanzi)}')" title="Tandai">🔖</button></span>
+  </div>`;
+}
+
+// ============================================================
+//  PAGINATION
+// ============================================================
+function renderPagination() {
+  if (alphaFilter) { document.getElementById('pagination').innerHTML = ''; return; }
+  const total = Math.ceil(filtered.length / pageSize);
+  const pag   = document.getElementById('pagination');
+  if (total <= 1) { pag.innerHTML = ''; return; }
+  let h = `<button class="page-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>←</button>`;
+  const range = [];
+  for (let i=1;i<=total;i++) {
+    if (i===1||i===total||(i>=page-2&&i<=page+2)) range.push(i);
+    else if (range[range.length-1]!=='...') range.push('...');
+  }
+  range.forEach(n => {
+    if (n==='...') h+=`<span class="page-btn" style="cursor:default">…</span>`;
+    else h+=`<button class="page-btn${n===page?' active':''}" onclick="goPage(${n})">${n}</button>`;
+  });
+  h+=`<button class="page-btn" onclick="goPage(${page+1})" ${page===total?'disabled':''}>→</button>`;
+  pag.innerHTML = h;
+}
+function goPage(n) {
+  const t = Math.ceil(filtered.length/pageSize);
+  if (n<1||n>t) return;
+  page=n; renderPage(); renderPagination();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ============================================================
+//  DISPLAY MODE
+// ============================================================
+function setDisplayMode(m) {
+  displayMode = m;
+  document.getElementById('modeGrid').classList.toggle('active', m==='grid');
+  document.getElementById('modeList').classList.toggle('active', m==='list');
+  renderPage();
+}
+function toggleBmOnly() {
+  bmOnly = !bmOnly;
+  document.getElementById('bmOnlyBtn').classList.toggle('active', bmOnly);
+  page=1; applyFilters();
+}
+
+let sortedAZ = false;
+function sortAZ() {
+  sortedAZ = !sortedAZ;
+  const btn = document.getElementById('sortAzBtn');
+  if (sortedAZ) {
+    filtered.sort((a, b) => a.pinyin.localeCompare(b.pinyin));
+    btn.classList.add('active');
+    toast('🔤 Diurutkan A–Z (Pinyin)');
+  } else {
+    applyFilters();
+    btn.classList.remove('active');
+    toast('🔄 Urutan direset');
+    return;
+  }
+  page = 1;
+  renderPage();
+  renderPagination();
+}
+
+// Fungsi helper untuk konversi huruf pinyin beraksara ke huruf biasa
+function normalizeFirstLetter(pinyin) {
+  const map = {
+    'ā':'a','á':'a','ǎ':'a','à':'a',
+    'ē':'e','é':'e','ě':'e','è':'e',
+    'ī':'i','í':'i','ǐ':'i','ì':'i',
+    'ō':'o','ó':'o','ǒ':'o','ò':'o',
+    'ū':'u','ú':'u','ǔ':'u','ù':'u',
+    'ǖ':'u','ǘ':'u','ǚ':'u','ǜ':'u',
+    'ń':'n','ň':'n'
+  };
+  const first = pinyin.trim()[0];
+  return (map[first] || first).toLowerCase();
+}
+
+function buildAlphaBar() {
+  const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  
+  const available = new Set();
+  VOCAB.forEach(w => {
+    available.add(normalizeFirstLetter(w.pinyin));
+  });
+
+  const bar = document.getElementById('alphaBar');
+  bar.innerHTML = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'alpha-btn' + (alphaFilter === '' ? ' active' : '');
+  allBtn.textContent = 'Semua';
+  allBtn.addEventListener('click', function() { setAlpha(''); });
+  bar.appendChild(allBtn);
+
+  letters.forEach(l => {
+    const btn = document.createElement('button');
+    const isAvailable = available.has(l);
+    const isActive = alphaFilter === l;
+    btn.className = 'alpha-btn' + (isActive ? ' active' : '') + (!isAvailable ? ' disabled-letter' : '');
+    btn.textContent = l.toUpperCase();
+    if (isAvailable) {
+      btn.addEventListener('click', function() { setAlpha(l); });
+    }
+    bar.appendChild(btn);
+  });
+}
+
+function setAlpha(letter) {
+  alphaFilter = letter;
+  buildAlphaBar();
+  page = 1;
+  applyFilters();
+}
+
+function shuffleVocab() {
+  for (let i=filtered.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [filtered[i],filtered[j]]=[filtered[j],filtered[i]];
+  }
+  page=1; renderPage(); renderPagination();
+  toast('🔀 Diacak!');
+}
+
+// ============================================================
+//  BOOKMARK
+// ============================================================
+function toggleBm(e, h) {
+  e.stopPropagation();
+  bookmarks.has(h) ? bookmarks.delete(h) : bookmarks.add(h);
+  localStorage.setItem('hsk5_bm', JSON.stringify([...bookmarks]));
+  updateStats(); renderPage();
+  if (bmOnly) applyFilters();
+  toast(bookmarks.has(h) ? '🔖 Ditandai!' : '🔖 Dihapus dari penanda');
+}
+function toggleBmModal() {
+  if (!curModal) return;
+  const h = curModal.hanzi;
+  bookmarks.has(h) ? bookmarks.delete(h) : bookmarks.add(h);
+  localStorage.setItem('hsk5_bm', JSON.stringify([...bookmarks]));
+  updateStats(); renderPage();
+  if (bmOnly) applyFilters();
+  const btn = document.getElementById('mBmBtn');
+  const on  = bookmarks.has(h);
+  btn.classList.toggle('bm-on', on);
+  btn.textContent = on ? '🔖 Ditandai' : '🔖 Tandai';
+}
+
+// ============================================================
+//  MODAL
+// ============================================================
+function openModal(h) {
+  const w = VOCAB.find(v => v.hanzi === h);
+  if (!w) return;
+  curModal = w;
+  document.getElementById('mHanzi').textContent  = w.hanzi;
+  document.getElementById('mPinyin').textContent = w.pinyin;
+  document.getElementById('mType').innerHTML = w.type
+    ? `<span class="type-badge">${w.type} · ${TYPE_ID[w.type]||w.type}</span>` : '';
+  document.getElementById('mEn').textContent  = w.english;
+  document.getElementById('mId').textContent  = w.indonesian || w.english;
+  document.getElementById('mLevel').textContent = w.level ? 'Level: '+w.level : '';
+
+  // Contoh kalimat
+  const ex = EXAMPLES[w.hanzi];
+  const exEl = document.getElementById('mExample');
+  if (ex) {
+    exEl.style.display = 'block';
+    document.getElementById('mExZh').textContent  = ex.zh;
+    document.getElementById('mExPy').textContent  = ex.py;
+    document.getElementById('mExId').textContent  = ex.id;
+    document.getElementById('mExEn').textContent  = ex.en;
+  } else {
+    exEl.style.display = 'none';
+  }
+
+  const on = bookmarks.has(h);
+  const btn = document.getElementById('mBmBtn');
+  btn.classList.toggle('bm-on', on);
+  btn.textContent = on ? '🔖 Ditandai' : '🔖 Tandai';
+  document.getElementById('modal').classList.add('open');
+}
+
+// ============================================================
+//  STATS
+// ============================================================
+function updateStats() {
+  document.getElementById('bmCount').textContent     = bookmarks.size;
+  document.getElementById('learnedCount').textContent = learned.size;
+}
+
+// ============================================================
+//  FLASHCARD
+// ============================================================
+function initFlashcards() {
+  const src = fcBmOnly
+    ? VOCAB.filter(w => bookmarks.has(w.hanzi))
+    : [...filtered];
+  if (!src.length) { toast('⚠️ Tidak ada kata!'); return; }
+  fcQueue = shuffle([...src]);
+  fcIdx = 0;
+  fcKnownSet.clear(); fcSkipSet.clear(); fcFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  showFcCard();
+}
+function showFcCard() {
+  if (!fcQueue.length) return;
+  const w = fcQueue[fcIdx];
+  document.getElementById('fcHanzi').textContent = w.hanzi;
+  document.getElementById('fcPinyin').textContent = w.pinyin;
+  document.getElementById('fcType').textContent =
+    w.type ? `${w.type} · ${TYPE_ID[w.type]||w.type}` : '—';
+  document.getElementById('fcEn').textContent = w.english;
+  document.getElementById('fcId').textContent = w.indonesian || w.english;
+  document.getElementById('flashcard').classList.remove('flipped');
+  fcFlipped = false;
+  const pct = fcQueue.length > 1 ? (fcIdx/(fcQueue.length-1))*100 : 100;
+  document.getElementById('fcFill').style.width = pct+'%';
+  document.getElementById('fcProgText').textContent = `${fcIdx+1} / ${fcQueue.length}`;
+  document.getElementById('fcStats').textContent =
+    `✓ ${fcKnownSet.size} sudah tahu · ✗ ${fcSkipSet.size} belum tahu`;
+}
+function flipCard() {
+  fcFlipped = !fcFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped', fcFlipped);
+}
+function fcNext()    { if (fcIdx < fcQueue.length-1) { fcIdx++; showFcCard(); } }
+function fcPrev()    { if (fcIdx > 0) { fcIdx--; showFcCard(); } }
+function fcKnowFn()  {
+  const w = fcQueue[fcIdx];
+  fcKnownSet.add(w.hanzi); fcSkipSet.delete(w.hanzi);
+  learned.add(w.hanzi);
+  localStorage.setItem('hsk5_learned', JSON.stringify([...learned]));
+  updateStats(); fcNext();
+}
+function fcSkipFn()  {
+  const w = fcQueue[fcIdx];
+  fcSkipSet.add(w.hanzi); fcKnownSet.delete(w.hanzi);
+  fcNext();
+}
+function toggleFcBmOnly() {
+  fcBmOnly = !fcBmOnly;
+  document.getElementById('fcBmOnlyBtn').classList.toggle('active', fcBmOnly);
+  initFlashcards();
+}
+
+// ============================================================
+//  ORDERING — INIT & DISPLAY
+// ============================================================
+function initOrdering() {
+  const count = parseInt(document.getElementById('wrCountSelect').value) || 10;
+  ordQueue   = shuffle([...EXERCISES]).slice(0, count);
+  ordIdx     = 0;
+  ordScore   = 0;
+  ordChecked = false;
+  ordPlaced  = [];
+  document.getElementById('wrGame').style.display   = 'block';
+  document.getElementById('wrResult').classList.remove('visible');
+  document.getElementById('wrTotal').textContent = ordQueue.length;
+  document.getElementById('wrScore').textContent = '0';
+  showOrdQuestion();
+}
+function restartOrdering() { initOrdering(); }
+
+function showOrdQuestion() {
+  if (ordIdx >= ordQueue.length) { showOrdResult(); return; }
+  const ex = ordQueue[ordIdx];
+  ordPlaced  = [];
+  ordChecked = false;
+
+  // shuffled bank (only non-comma tokens)
+  const bankTokens = shuffle([...ex.words].filter(w => w !== '，'));
+
+  document.getElementById('wrQnum').textContent =
+    `SOAL ${ordIdx+1} dari ${ordQueue.length}`;
+  document.getElementById('wrGrammarTag').textContent = ex.grammar || '';
+  document.getElementById('wrGrammarTag').style.display = ex.grammar ? '' : 'none';
+
+  const fill = ordQueue.length > 1 ? (ordIdx/(ordQueue.length-1))*100 : 0;
+  document.getElementById('wrFill').style.width = fill+'%';
+  document.getElementById('wrProgText').textContent = `${ordIdx+1} / ${ordQueue.length}`;
+  document.getElementById('wrFeedback').style.display = 'none';
+  document.getElementById('wrCheckBtn').style.display = '';
+  document.getElementById('wrClearBtn').style.display = '';
+  document.getElementById('wrNextBtn').style.display  = 'none';
+  document.getElementById('wrCheckBtn').disabled = false;
+
+  // render bank
+  document.getElementById('wrBank').innerHTML = bankTokens.map((w,i) =>
+    `<div class="wr-chip" id="bchip-${i}" data-idx="${i}" onclick="ordAdd(${i},'${esc(w)}')">${w}</div>`
+  ).join('');
+
+  renderOrdAnswer();
+}
+
+function renderOrdAnswer() {
+  const el = document.getElementById('wrAnswer');
+  el.className = 'wr-answer-wrap';
+  if (!ordPlaced.length) {
+    el.innerHTML = '<span class="wr-empty-hint">Klik kata di atas untuk menyusun kalimat…</span>';
+  } else {
+    el.innerHTML = ordPlaced.map((a,i) =>
+      `<div class="wr-placed-chip" onclick="ordRemove(${i})" title="Klik untuk hapus">${a.word}</div>`
+    ).join('');
+  }
+}
+
+function ordAdd(idx, word) {
+  if (ordChecked) return;
+  // avoid double-adding same bank slot
+  if (ordPlaced.some(p => p.idx === idx)) return;
+  ordPlaced.push({word, idx});
+  document.getElementById('bchip-'+idx)?.classList.add('used');
+  renderOrdAnswer();
+}
+
+function ordRemove(i) {
+  if (ordChecked) return;
+  const p = ordPlaced.splice(i, 1)[0];
+  document.getElementById('bchip-'+p.idx)?.classList.remove('used');
+  renderOrdAnswer();
+}
+
+function clearOrdering() {
+  if (ordChecked) return;
+  ordPlaced = [];
+  document.querySelectorAll('.wr-chip').forEach(el => el.classList.remove('used'));
+  renderOrdAnswer();
+  document.getElementById('wrFeedback').style.display = 'none';
+}
+
+function checkOrdering() {
+  if (!ordPlaced.length) { toast('⚠️ Susun kata dulu!'); return; }
+  ordChecked = true;
+  const ex      = ordQueue[ordIdx];
+  const userAns = ordPlaced.map(p => p.word).join('');
+  const correct = ex.answer_display === userAns;
+  if (correct) ordScore++;
+
+  document.getElementById('wrScore').textContent = ordScore;
+
+  const aw = document.getElementById('wrAnswer');
+  aw.className = 'wr-answer-wrap ' + (correct ? 'correct' : 'wrong');
+
+  const fb = document.getElementById('wrFeedback');
+  fb.style.display = 'block';
+  fb.className = 'wr-feedback ' + (correct ? 'correct' : 'wrong');
+  fb.innerHTML = correct
+    ? `✅ <strong>Benar! Bagus sekali!</strong>
+       <div class="ans-hanzi">${ex.answer_display}</div>
+       <div class="ans-pinyin">${ex.pinyin}</div>
+       <div class="ans-meaning">${ex.meaning}</div>`
+    : `❌ <strong>Belum tepat.</strong> Jawaban yang benar:
+       <div class="ans-hanzi">${ex.answer_display}</div>
+       <div class="ans-pinyin">${ex.pinyin}</div>
+       <div class="ans-meaning">${ex.meaning}</div>`;
+
+  document.querySelectorAll('.wr-chip').forEach(el => el.style.pointerEvents = 'none');
+  document.getElementById('wrCheckBtn').style.display = 'none';
+  document.getElementById('wrClearBtn').style.display = 'none';
+  document.getElementById('wrNextBtn').style.display  = '';
+}
+
+function nextOrdering() {
+  ordIdx++;
+  document.querySelectorAll('.wr-chip').forEach(el => el.style.pointerEvents = '');
+  if (ordIdx >= ordQueue.length) { showOrdResult(); return; }
+  showOrdQuestion();
+}
+
+function showOrdResult() {
+  document.getElementById('wrGame').style.display = 'none';
+  const total = ordQueue.length;
+  const pct   = Math.round((ordScore/total)*100);
+  document.getElementById('wrFill').style.width = '100%';
+  document.getElementById('wrFinalScore').textContent = `${ordScore}/${total}`;
+  let msg, stars;
+  if (pct===100) { msg='Sempurna! 🏆 Luar biasa!'; stars='🌟🌟🌟'; }
+  else if (pct>=80) { msg='Bagus sekali! 💪 Terus berlatih!'; stars='⭐⭐🌟'; }
+  else if (pct>=60) { msg='Lumayan! 😊 Bisa lebih baik lagi.'; stars='⭐⭐'; }
+  else { msg='Semangat belajar terus! 📚'; stars='⭐'; }
+  document.getElementById('wrStars').textContent    = stars;
+  document.getElementById('wrResultMsg').textContent  = msg;
+  document.getElementById('wrResultDetail').textContent = `Kamu menjawab benar ${ordScore} dari ${total} soal (${pct}%)`;
+  document.getElementById('wrResult').classList.add('visible');
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function shuffle(a) {
+  for (let i=a.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function esc(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function togglePinyin() {
+  showPinyin = !showPinyin;
+  const body = document.body;
+  const btn = document.getElementById('togglePinyinBtn');
+  
+  if (showPinyin) {
+    body.classList.remove('hide-pinyin');
+    btn.classList.add('active');
+    btn.classList.remove('off');
+    btn.textContent = '🔊 Pinyin';
+    toast('Pinyin ditampilkan');
+  } else {
+    body.classList.add('hide-pinyin');
+    btn.classList.remove('active');
+    btn.classList.add('off');
+    btn.textContent = '🔇 Pinyin';
+    toast('Pinyin disembunyikan');
+  }
+  
+  // Refresh tampilan
+  if (document.getElementById('tab-browse').classList.contains('active')) {
+    renderPage();
+  }
+  if (document.getElementById('tab-flash').classList.contains('active') && fcQueue.length > 0) {
+    showFcCard();
+  }
+}
+
+function toggleLang(lang) {
+  const body = document.body;
+  if (lang === 'en') {
+    showEn = !showEn;
+    body.classList.toggle('hide-en', !showEn);
+    const btn = document.getElementById('toggleEnBtn');
+    btn.classList.toggle('active-en', showEn);
+    btn.classList.toggle('off', !showEn);
+  } else {
+    showId = !showId;
+    body.classList.toggle('hide-id', !showId);
+    const btn = document.getElementById('toggleIdBtn');
+    btn.classList.toggle('active-id', showId);
+    btn.classList.toggle('off', !showId);
+  }
+}
+
+function closeModal()          { document.getElementById('modal').classList.remove('open'); }
+function closeModalBg(e)       { if (e.target === document.getElementById('modal')) closeModal(); }
+function speakModal()          { if (curModal) speakText(curModal.hanzi); }
+function speakEv(e, h)         { e.stopPropagation(); speakText(h); }
+function speakText(t) {
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = 'zh-CN'; u.rate = 0.85;
+    speechSynthesis.speak(u);
+  }
+}
+
+// ============================================================
+//  KEYBOARD
+// ============================================================
+document.addEventListener('keydown', e => {
+  if (document.getElementById('modal').classList.contains('open')) {
+    if (e.key==='Escape') closeModal();
+    return;
+  }
+  const flashActive = document.getElementById('tab-flash').classList.contains('active');
+  if (flashActive) {
+    if (e.key==='ArrowRight') fcNext();
+    else if (e.key==='ArrowLeft') fcPrev();
+    else if (e.key===' ')  { e.preventDefault(); flipCard(); }
+    else if (e.key==='Enter') fcKnowFn();
+    else if (e.key.toLowerCase()==='x') fcSkipFn();
+  }
+});
+
+init();
+</script>
+</body>
+</html>
