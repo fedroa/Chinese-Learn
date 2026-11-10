@@ -1,0 +1,64 @@
+/* ===== GAMES (Speed Quiz & Hanzi Rain) — memakai variabel tema hsk*.css, dengan fallback ===== */
+.gm-wrap{
+  --g-surface:var(--surface,#161b27);--g-surface2:var(--surface2,#1c2235);--g-surface3:var(--surface3,#222840);
+  --g-border:var(--border,#2c3352);--g-border-l:var(--border-light,#3a4266);
+  --g-accent:var(--accent,#e8a045);--g-accent-d:var(--accent-dark,#b87030);
+  --g-blue:var(--accent2,#5b8dee);--g-red:var(--accent3,#e85d75);--g-green:var(--green,#3ec878);
+  --g-text:var(--text,#e8eaf2);--g-dim:var(--text-dim,#8892b0);--g-muted:var(--text-muted,#4a5278);
+  --g-hanzi:var(--hanzi,#f5e6c4);--g-r:var(--radius,16px);--g-rs:var(--radius-sm,10px);
+  max-width:900px;margin:0 auto;color:var(--g-text);font-family:"Outfit","Noto Sans SC",sans-serif
+}
+.gm-panel{background:var(--g-surface);border:1px solid var(--g-border);border-radius:20px;padding:28px 30px;box-shadow:var(--shadow,0 4px 24px rgba(0,0,0,.5));animation:fadeUp .25s ease}
+.gm-h{font-size:22px;font-weight:700;margin:0 0 4px;color:var(--g-text)}
+.gm-sub{color:var(--g-dim);font-size:13px;margin:0 0 20px}
+.gm-opts{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px}
+.gm-wrap label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--g-muted);display:flex;flex-direction:column;gap:6px}
+.gm-wrap select,.gm-in{background:var(--g-surface2);border:1px solid var(--g-border);border-radius:var(--g-rs);padding:10px 13px;color:var(--g-text);font-family:"Outfit",sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border-color .15s;text-transform:none;letter-spacing:0;font-weight:400}
+.gm-wrap select:focus,.gm-in:focus{border-color:var(--g-accent)}
+.gm-in{width:100%;box-sizing:border-box;font-size:18px;text-align:center;cursor:text}
+.gm-in.no{border-color:var(--g-red);animation:gmShake .3s}
+.gm-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.gm-card{background:var(--g-surface2);border:1px solid var(--g-border);border-radius:var(--g-r);padding:20px;display:flex;flex-direction:column;gap:12px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.gm-card:hover{transform:translateY(-2px);border-color:var(--g-accent);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.gm-card .ic,.gm-res .ic{font-size:34px;line-height:1}
+.gm-card h3{margin:0;font-size:17px;font-weight:700;color:var(--g-text)}
+.gm-card p{margin:0;color:var(--g-dim);font-size:13px;flex:1}
+.gm-card .rec{font-size:12px;font-weight:600;color:var(--g-accent)}
+.gm-btn{background:linear-gradient(135deg,var(--g-accent),var(--g-accent-d));color:#160a00;border:0;border-radius:var(--g-rs);padding:11px 20px;font-family:"Outfit",sans-serif;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .17s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.gm-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.gm-btn.alt,.gm-btn.sm{background:var(--g-surface2);border:1px solid var(--g-border);color:var(--g-dim);font-weight:500;letter-spacing:0}
+.gm-btn.alt:hover,.gm-btn.sm:hover{border-color:var(--g-accent);color:var(--g-accent);filter:none}
+.gm-btn.sm{padding:7px 13px;font-size:12px}
+.gm-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;font-size:15px;font-weight:600}
+.gm-bar{height:4px;background:var(--g-border);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.gm-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--g-blue),var(--g-accent));border-radius:2px}
+.gm-q{text-align:center;padding:14px 0 22px;min-height:120px}
+.gm-q .big{font-family:"Noto Serif SC",serif;font-size:64px;line-height:1.2;color:var(--g-hanzi)}
+.gm-q .py{font-size:18px;color:var(--g-accent)}
+.gm-q .mn{font-size:28px;font-weight:600;padding-top:22px;color:var(--g-text)}
+.gm-ch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gm-ch button{background:var(--g-surface2);color:var(--g-text);border:1px solid var(--g-border);border-radius:var(--g-rs);padding:14px 12px;font-family:"Outfit",sans-serif;font-size:15px;cursor:pointer;text-align:left;display:flex;gap:10px;align-items:center;transition:all .17s}
+.gm-ch button.hz{font-family:"Noto Serif SC",serif;font-size:24px;justify-content:center;color:var(--g-hanzi)}
+.gm-ch button:hover{border-color:var(--g-accent);background:var(--g-surface3)}
+.gm-ch button.ok{background:rgba(62,200,120,.16);border-color:var(--g-green);color:var(--g-green)}
+.gm-ch button.no{background:rgba(232,93,117,.16);border-color:var(--g-red);color:var(--g-red)}
+.gm-ch .k{font-family:"Outfit",sans-serif;font-size:11px;color:var(--g-muted);border:1px solid var(--g-border-l);border-radius:5px;padding:0 6px;line-height:18px}
+.gm-field{position:relative;height:380px;overflow:hidden;border-radius:var(--g-r);background:linear-gradient(180deg,var(--bg,#0d1117),var(--g-surface2));border:1px solid var(--g-border)}
+.gm-ground{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--g-red);box-shadow:0 0 14px var(--g-red)}
+.gm-w{position:absolute;top:0;width:24%;text-align:center;will-change:transform}
+.gm-w b{display:block;font-family:"Noto Serif SC",serif;font-weight:700;color:var(--g-hanzi);background:var(--g-surface3);border:1px solid var(--g-border-l);border-radius:12px;padding:4px 6px;white-space:nowrap}
+.gm-w small{display:block;color:var(--g-dim);font-size:11px}
+.gm-w.t b{border-color:var(--g-accent);box-shadow:0 0 0 1px var(--g-accent),0 0 16px rgba(232,160,69,.35)}
+.gm-w.pop{animation:gmPop .25s forwards}
+.gm-w.bad b{background:rgba(232,93,117,.3);border-color:var(--g-red)}
+.gm-res{text-align:center}
+.gm-score{font-size:52px;font-weight:800;color:var(--g-accent);line-height:1.2}
+.gm-miss{text-align:left;max-height:220px;overflow:auto;background:var(--g-surface2);border:1px solid var(--g-border);border-radius:var(--g-rs);padding:12px 14px;margin:14px 0 18px;font-size:13px}
+.gm-miss b{display:block;margin-bottom:6px;color:var(--g-dim);font-size:11px;letter-spacing:.5px;text-transform:uppercase}
+.gm-miss div{padding:4px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:baseline;border-top:1px solid var(--g-border)}
+.gm-miss b+div{border-top:0}
+.gm-miss .hz{font-family:"Noto Serif SC",serif;font-size:18px;color:var(--g-hanzi)}
+.gm-miss .py{color:var(--g-accent)}
+@keyframes gmPop{to{transform:scale(1.4);opacity:0}}
+@keyframes gmShake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media(max-width:560px){.gm-panel{padding:20px 16px}.gm-q .big{font-size:52px}.gm-field{height:340px}.gm-q .mn{font-size:24px}}
